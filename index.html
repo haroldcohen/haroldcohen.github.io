@@ -158,15 +158,20 @@
         // Pré-charger tous les sons au premier clic
         function unlockAudio() {
             if (audioUnlocked) return;
-
+            
             // Créer et pré-charger tous les éléments audio
             for (const [key, filename] of Object.entries(ALERTS)) {
                 const audio = new Audio(filename);
                 audio.preload = 'auto';
-                audio.load();
+                audio.volume = 0; // Jouer en silence pour débloquer iOS
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    audio.volume = 1; // Remettre le volume normal
+                }).catch(err => console.log('Préchargement:', err));
                 audioElements[key] = audio;
             }
-
+            
             audioUnlocked = true;
             console.log('Audio débloqué et sons pré-chargés');
         }
@@ -177,10 +182,11 @@
                 console.log(`Son ${key} non disponible`);
                 return;
             }
-
+            
             try {
-                // Cloner l'audio pour permettre plusieurs lectures simultanées si besoin
-                const audio = audioElements[key].cloneNode();
+                const audio = audioElements[key];
+                audio.currentTime = 0;
+                audio.volume = 1;
                 audio.play().catch(err => console.log('Erreur lecture audio:', err));
             } catch (err) {
                 console.error(`Erreur lecture son ${key}:`, err);
@@ -243,7 +249,7 @@
             secondsDisplay.classList.add('blink');
             centisDisplay.classList.add('blink');
             separators.forEach(sep => sep.classList.add('blink'));
-
+            
             setTimeout(() => {
                 minutesDisplay.classList.remove('blink');
                 secondsDisplay.classList.remove('blink');
@@ -272,7 +278,7 @@
                 if (!audioUnlocked) {
                     unlockAudio();
                 }
-
+                
                 isRunning = true;
                 if (timeRemaining === TOTAL_TIME) {
                     // Premier démarrage
