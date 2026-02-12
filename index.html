@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dead End - Compte à rebours</title>
+    <style>
+        @font-face {
+            font-family: 'MoonGet';
+            src: url('moon_get-Heavy.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #ffcc00;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'MoonGet', 'Courier New', monospace;
+            padding: 40px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20vh;
+            align-items: center;
+            width: auto;
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timer-display {
+            font-size: 18vw;
+            color: #000000;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1;
+            min-width: 2.2ch;
+            display: inline-block;
+        }
+
+        .timer-separator {
+            font-size: 10vw;
+            color: #000000;
+            font-weight: bold;
+            line-height: 1;
+            margin: 0 0.2em;
+        }
+
+        .timer-display.blink, .timer-separator.blink {
+            animation: blinkWhite 0.5s ease-in-out infinite;
+        }
+
+        @keyframes blinkWhite {
+            0%, 100% {
+                color: #000000;
+            }
+            50% {
+                color: #ffffff;
+            }
+        }
+
+        .controls {
+            display: flex;
+            gap: 8vw;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            background-color: #000000;
+            color: #ffcc00;
+            border: none;
+            border-radius: 15px;
+            padding: 2.5vw 6vw;
+            font-size: 2vw;
+            font-family: 'MoonGet', 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (min-width: 768px) {
+            .timer-display {
+                font-size: 120px;
+            }
+
+            .timer-separator {
+                font-size: 120px;
+            }
+
+            button {
+                padding: 20px 60px;
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="timer-container">
+            <div class="timer-display" id="minutes">20</div>
+            <div class="timer-separator">:</div>
+            <div class="timer-display" id="seconds">00</div>
+            <div class="timer-separator">:</div>
+            <div class="timer-display" id="centis">00</div>
+        </div>
+        <div class="controls">
+            <button id="startBtn">START</button>
+            <button id="resetBtn">RESET</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const TOTAL_TIME = 20 * 60 * 100; // 20 minutes en centièmes de seconde
+        const ALERTS = {
+            start: 'alert_start.mp3',
+            15: 'alert_15mn.mp3',
+            10: 'alert_10mn.mp3',
+            5: 'alert_5mn.mp3',
+            1: 'alert_1mn.mp3',
+            end: 'alert_end.m4a'
+        };
+
+        // État
+        let timeRemaining = TOTAL_TIME;
+        let timerInterval = null;
+        let isRunning = false;
+        let alertsPlayed = new Set();
+
+        // Éléments DOM
+        const minutesDisplay = document.getElementById('minutes');
+        const secondsDisplay = document.getElementById('seconds');
+        const centisDisplay = document.getElementById('centis');
+        const separators = document.querySelectorAll('.timer-separator');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Formatage du temps
+        function formatTime(centiseconds) {
+            const minutes = Math.floor(centiseconds / 6000);
+            const seconds = Math.floor((centiseconds % 6000) / 100);
+            const centis = centiseconds % 100;
+            return {
+                minutes: String(minutes).padStart(2, '0'),
+                seconds: String(seconds).padStart(2, '0'),
+                centis: String(centis).padStart(2, '0')
+            };
+        }
+
+        // Jouer un son
+        function playSound(filename) {
+            const audio = new Audio(filename);
+            audio.play().catch(err => console.log('Erreur lecture audio:', err));
+        }
+
+        // Vérifier les alertes
+        function checkAlerts() {
+            const minutesRemaining = Math.floor(timeRemaining / 6000);
+            const secondsRemaining = Math.floor((timeRemaining % 6000) / 100);
+            const centisRemaining = timeRemaining % 100;
+
+            // Alertes aux minutes spécifiques (quand on passe pile à la minute)
+            if (secondsRemaining === 0 && centisRemaining === 0) {
+                if (minutesRemaining === 15 && !alertsPlayed.has(15)) {
+                    playSound(ALERTS[15]);
+                    alertsPlayed.add(15);
+                } else if (minutesRemaining === 10 && !alertsPlayed.has(10)) {
+                    playSound(ALERTS[10]);
+                    alertsPlayed.add(10);
+                } else if (minutesRemaining === 5 && !alertsPlayed.has(5)) {
+                    playSound(ALERTS[5]);
+                    alertsPlayed.add(5);
+                } else if (minutesRemaining === 1 && !alertsPlayed.has(1)) {
+                    playSound(ALERTS[1]);
+                    alertsPlayed.add(1);
+                }
+            }
+
+            // Alerte 10 secondes avant la fin
+            if (timeRemaining === 1000 && !alertsPlayed.has('end')) {
+                playSound(ALERTS.end);
+                alertsPlayed.add('end');
+            }
+        }
+
+        // Mettre à jour l'affichage
+        function updateDisplay() {
+            const time = formatTime(timeRemaining);
+            minutesDisplay.textContent = time.minutes;
+            secondsDisplay.textContent = time.seconds;
+            centisDisplay.textContent = time.centis;
+        }
+
+        // Démarrer le clignotement
+        function startBlinking() {
+            minutesDisplay.classList.add('blink');
+            secondsDisplay.classList.add('blink');
+            centisDisplay.classList.add('blink');
+            separators.forEach(sep => sep.classList.add('blink'));
+            
+            setTimeout(() => {
+                minutesDisplay.classList.remove('blink');
+                secondsDisplay.classList.remove('blink');
+                centisDisplay.classList.remove('blink');
+                separators.forEach(sep => sep.classList.remove('blink'));
+            }, 10000); // 10 secondes de clignotement
+        }
+
+        // Fonction principale du timer
+        function tick() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                updateDisplay();
+                checkAlerts();
+            } else {
+                // Fin du compte à rebours
+                stopTimer();
+                startBlinking();
+            }
+        }
+
+        // Démarrer/Pause/Resume le timer
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                if (timeRemaining === TOTAL_TIME) {
+                    // Premier démarrage
+                    playSound(ALERTS.start);
+                }
+                timerInterval = setInterval(tick, 10);
+                startBtn.textContent = 'PAUSE';
+            } else {
+                // Mise en pause
+                stopTimer();
+                startBtn.textContent = 'RESUME';
+            }
+        }
+
+        // Arrêter le timer
+        function stopTimer() {
+            isRunning = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Réinitialiser le timer
+        function resetTimer() {
+            stopTimer();
+            timeRemaining = TOTAL_TIME;
+            alertsPlayed.clear();
+            updateDisplay();
+            minutesDisplay.classList.remove('blink');
+            secondsDisplay.classList.remove('blink');
+            centisDisplay.classList.remove('blink');
+            separators.forEach(sep => sep.classList.remove('blink'));
+            startBtn.textContent = 'START';
+        }
+
+        // Événements
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // Initialisation
+        updateDisplay();
+    </script>
+</body>
+</html>
