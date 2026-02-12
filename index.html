@@ -144,6 +144,8 @@
         let timerInterval = null;
         let isRunning = false;
         let alertsPlayed = new Set();
+        let audioElements = {};
+        let audioUnlocked = false;
 
         // Éléments DOM
         const minutesDisplay = document.getElementById('minutes');
@@ -152,6 +154,38 @@
         const separators = document.querySelectorAll('.timer-separator');
         const startBtn = document.getElementById('startBtn');
         const resetBtn = document.getElementById('resetBtn');
+
+        // Pré-charger tous les sons au premier clic
+        function unlockAudio() {
+            if (audioUnlocked) return;
+
+            // Créer et pré-charger tous les éléments audio
+            for (const [key, filename] of Object.entries(ALERTS)) {
+                const audio = new Audio(filename);
+                audio.preload = 'auto';
+                audio.load();
+                audioElements[key] = audio;
+            }
+
+            audioUnlocked = true;
+            console.log('Audio débloqué et sons pré-chargés');
+        }
+
+        // Jouer un son pré-chargé
+        function playSound(key) {
+            if (!audioElements[key]) {
+                console.log(`Son ${key} non disponible`);
+                return;
+            }
+
+            try {
+                // Cloner l'audio pour permettre plusieurs lectures simultanées si besoin
+                const audio = audioElements[key].cloneNode();
+                audio.play().catch(err => console.log('Erreur lecture audio:', err));
+            } catch (err) {
+                console.error(`Erreur lecture son ${key}:`, err);
+            }
+        }
 
         // Formatage du temps
         function formatTime(centiseconds) {
@@ -165,12 +199,6 @@
             };
         }
 
-        // Jouer un son
-        function playSound(filename) {
-            const audio = new Audio(filename);
-            audio.play().catch(err => console.log('Erreur lecture audio:', err));
-        }
-
         // Vérifier les alertes
         function checkAlerts() {
             const minutesRemaining = Math.floor(timeRemaining / 6000);
@@ -180,23 +208,23 @@
             // Alertes aux minutes spécifiques (quand on passe pile à la minute)
             if (secondsRemaining === 0 && centisRemaining === 0) {
                 if (minutesRemaining === 15 && !alertsPlayed.has(15)) {
-                    playSound(ALERTS[15]);
+                    playSound('15');
                     alertsPlayed.add(15);
                 } else if (minutesRemaining === 10 && !alertsPlayed.has(10)) {
-                    playSound(ALERTS[10]);
+                    playSound('10');
                     alertsPlayed.add(10);
                 } else if (minutesRemaining === 5 && !alertsPlayed.has(5)) {
-                    playSound(ALERTS[5]);
+                    playSound('5');
                     alertsPlayed.add(5);
                 } else if (minutesRemaining === 1 && !alertsPlayed.has(1)) {
-                    playSound(ALERTS[1]);
+                    playSound('1');
                     alertsPlayed.add(1);
                 }
             }
 
             // Alerte 10 secondes avant la fin
             if (timeRemaining === 1000 && !alertsPlayed.has('end')) {
-                playSound(ALERTS.end);
+                playSound('end');
                 alertsPlayed.add('end');
             }
         }
@@ -215,7 +243,7 @@
             secondsDisplay.classList.add('blink');
             centisDisplay.classList.add('blink');
             separators.forEach(sep => sep.classList.add('blink'));
-            
+
             setTimeout(() => {
                 minutesDisplay.classList.remove('blink');
                 secondsDisplay.classList.remove('blink');
@@ -240,10 +268,15 @@
         // Démarrer/Pause/Resume le timer
         function startTimer() {
             if (!isRunning) {
+                // Débloquer l'audio au premier clic
+                if (!audioUnlocked) {
+                    unlockAudio();
+                }
+
                 isRunning = true;
                 if (timeRemaining === TOTAL_TIME) {
                     // Premier démarrage
-                    playSound(ALERTS.start);
+                    playSound('start');
                 }
                 timerInterval = setInterval(tick, 10);
                 startBtn.textContent = 'PAUSE';
