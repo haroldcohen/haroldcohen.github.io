@@ -35,7 +35,7 @@
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: clamp(1.4rem, 5vw, 2.8rem);
+            font-size: clamp(1.1rem, 3.5vw, 2.2rem);
             padding: clamp(10px, 1.5vw, 16px) clamp(14px, 2vw, 24px);
             line-height: 1.2;
             text-align: center;
@@ -146,6 +146,11 @@
                 interval = null;
                 startBtn.textContent = 'RESUME';
             }
+        });
+
+        document.getElementById('penaltyBtn').addEventListener('click', () => {
+            timeRemaining = Math.max(0, timeRemaining - 2 * 60 * 100);
+            updateDisplay();
         });
 
         resetBtn.addEventListener('click', () => {
