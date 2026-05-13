@@ -83,6 +83,24 @@
             cursor: pointer;
             letter-spacing: 0.05em;
         }
+        .timer-display.danger {
+            color: #D32515;
+        }
+
+        @keyframes blink-end {
+            0%, 100% { color: #D32515; }
+            50% { color: #FFFFFF; }
+        }
+
+        .timer-display.ended {
+            animation: blink-end 0.5s ease-in-out infinite;
+        }
+
+        button:disabled {
+            color: #B0B0B0;
+            border-color: #B0B0B0;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +122,8 @@
 
     <script>
         const TOTAL_TIME = 20 * 60 * 100;
+        const PENALTY_AMOUNT = 2 * 60 * 100;
+        const PENALTY_FLOOR = 10 * 100;
 
         let timeRemaining = TOTAL_TIME;
         let isRunning = false;
@@ -114,6 +134,8 @@
         const centisEl = document.getElementById('centis');
         const startBtn = document.getElementById('startBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const penaltyBtn = document.getElementById('penaltyBtn');
+        const timerDisplay = document.querySelector('.timer-display');
 
         function updateDisplay() {
             const m = Math.floor(timeRemaining / 6000);
@@ -124,10 +146,24 @@
             centisEl.textContent = String(c).padStart(2, '0');
         }
 
+        function updateTimerState() {
+            if (timeRemaining === 0) {
+                timerDisplay.classList.remove('danger');
+                timerDisplay.classList.add('ended');
+            } else if (timeRemaining <= 6000) {
+                timerDisplay.classList.add('danger');
+                timerDisplay.classList.remove('ended');
+            } else {
+                timerDisplay.classList.remove('danger', 'ended');
+            }
+            penaltyBtn.disabled = timeRemaining <= PENALTY_FLOOR;
+        }
+
         function tick() {
             if (timeRemaining > 0) {
                 timeRemaining--;
                 updateDisplay();
+                updateTimerState();
             } else {
                 clearInterval(interval);
                 interval = null;
@@ -148,9 +184,14 @@
             }
         });
 
-        document.getElementById('penaltyBtn').addEventListener('click', () => {
-            timeRemaining = Math.max(0, timeRemaining - 2 * 60 * 100);
+        penaltyBtn.addEventListener('click', () => {
+            if (timeRemaining - PENALTY_AMOUNT < PENALTY_FLOOR) {
+                timeRemaining = PENALTY_FLOOR;
+            } else {
+                timeRemaining -= PENALTY_AMOUNT;
+            }
             updateDisplay();
+            updateTimerState();
         });
 
         resetBtn.addEventListener('click', () => {
@@ -159,6 +200,7 @@
             interval = null;
             timeRemaining = TOTAL_TIME;
             updateDisplay();
+            updateTimerState();
             startBtn.textContent = 'START';
         });
     </script>
