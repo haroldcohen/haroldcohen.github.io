@@ -35,7 +35,7 @@
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: clamp(1.2rem, 4vw, 2.2rem);
+            font-size: clamp(1.4rem, 5vw, 2.8rem);
             padding: clamp(10px, 1.5vw, 16px) clamp(14px, 2vw, 24px);
             line-height: 1.2;
             text-align: center;
@@ -101,5 +101,61 @@
             <button id="penaltyBtn">PENALTY</button>
         </div>
     </div>
+
+    <script>
+        const TOTAL_TIME = 20 * 60 * 100;
+
+        let timeRemaining = TOTAL_TIME;
+        let isRunning = false;
+        let interval = null;
+
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const centisEl = document.getElementById('centis');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function updateDisplay() {
+            const m = Math.floor(timeRemaining / 6000);
+            const s = Math.floor((timeRemaining % 6000) / 100);
+            const c = timeRemaining % 100;
+            minutesEl.textContent = String(m).padStart(2, '0');
+            secondsEl.textContent = String(s).padStart(2, '0');
+            centisEl.textContent = String(c).padStart(2, '0');
+        }
+
+        function tick() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                updateDisplay();
+            } else {
+                clearInterval(interval);
+                interval = null;
+                isRunning = false;
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                interval = setInterval(tick, 10);
+                startBtn.textContent = 'PAUSE';
+            } else {
+                isRunning = false;
+                clearInterval(interval);
+                interval = null;
+                startBtn.textContent = 'RESUME';
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            isRunning = false;
+            clearInterval(interval);
+            interval = null;
+            timeRemaining = TOTAL_TIME;
+            updateDisplay();
+            startBtn.textContent = 'START';
+        });
+    </script>
 </body>
 </html>
