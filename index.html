@@ -224,6 +224,10 @@
             } else {
                 timeRemaining -= PENALTY_AMOUNT;
             }
+            if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
+                playSound('countdown');
+                countdownPlayed = true;
+            }
             updateDisplay();
             updateTimerState();
         });
