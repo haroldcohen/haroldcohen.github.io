@@ -128,6 +128,7 @@
         let timeRemaining = TOTAL_TIME;
         let isRunning = false;
         let interval = null;
+        let countdownPlayed = false;
 
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
@@ -136,6 +137,31 @@
         const resetBtn = document.getElementById('resetBtn');
         const penaltyBtn = document.getElementById('penaltyBtn');
         const timerDisplay = document.querySelector('.timer-display');
+
+        // Audio
+        let audioUnlocked = false;
+        const sounds = {
+            start: new Audio('assets/audio/alerts/20-minutes.mp3'),
+            countdown: new Audio('assets/audio/alerts/rupture-countdown.mp3'),
+        };
+        Object.values(sounds).forEach(a => a.preload = 'auto');
+
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            audioUnlocked = true;
+        }
+
+        function playSound(key) {
+            const audio = sounds[key];
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+        }
 
         function updateDisplay() {
             const m = Math.floor(timeRemaining / 6000);
@@ -164,6 +190,10 @@
                 timeRemaining--;
                 updateDisplay();
                 updateTimerState();
+                if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
+                    playSound('countdown');
+                    countdownPlayed = true;
+                }
             } else {
                 clearInterval(interval);
                 interval = null;
@@ -173,9 +203,13 @@
 
         startBtn.addEventListener('click', () => {
             if (!isRunning) {
+                unlockAudio();
                 isRunning = true;
                 interval = setInterval(tick, 10);
                 startBtn.textContent = 'PAUSE';
+                if (timeRemaining === TOTAL_TIME) {
+                    playSound('start');
+                }
             } else {
                 isRunning = false;
                 clearInterval(interval);
@@ -199,6 +233,7 @@
             clearInterval(interval);
             interval = null;
             timeRemaining = TOTAL_TIME;
+            countdownPlayed = false;
             updateDisplay();
             updateTimerState();
             startBtn.textContent = 'START';
