@@ -101,9 +101,32 @@
             border-color: #B0B0B0;
             cursor: default;
         }
+
+        .portrait-overlay {
+            display: none;
+        }
+
+        @media (orientation: portrait) {
+            .frame {
+                display: none;
+            }
+            .portrait-overlay {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100vw;
+                height: 100vh;
+                font-family: 'Oswald', sans-serif;
+                font-weight: 700;
+                font-size: clamp(1.5rem, 8vw, 3rem);
+                text-transform: uppercase;
+                color: #FFFFFF;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="portrait-overlay">Tournez votre écran</div>
     <div class="frame">
         <div class="warning-banner">WARNING: BIO HAZARDOUS CONTAINER FAILURE</div>
         <div class="timer-area">
