@@ -188,16 +188,7 @@
             new Audio('assets/audio/alerts/timer-background-noise-3.m4a'),
         ];
         bgSounds.forEach(a => a.preload = 'auto');
-
-        const bgMetadataReady = Promise.all(bgSounds.map(audio =>
-            new Promise(resolve => {
-                if (!isNaN(audio.duration) && audio.duration > 0) resolve();
-                else {
-                    audio.addEventListener('loadedmetadata', resolve, { once: true });
-                    audio.addEventListener('error', resolve, { once: true });
-                }
-            })
-        ));
+        const BG_DURATIONS = [800, 3300, 1100]; // centiseconds
 
         // Alert times in centiseconds (timeRemaining values when alerts fire)
         const ALERT_TIMES_CS = [90000, 60000, 30000, 6000, 1000];
@@ -228,7 +219,7 @@
                     ? Math.floor(Math.random() * unplayed.length)
                     : -1;
                 const trackIdx = i >= 0 ? unplayed.splice(i, 1)[0] : Math.floor(Math.random() * bgSounds.length);
-                const durationCs = Math.ceil((bgSounds[trackIdx].duration || 5) * 100);
+                const durationCs = BG_DURATIONS[trackIdx];
 
                 let placedTime = nextTime;
                 let placed = !bgConflicts(placedTime, durationCs);
@@ -344,10 +335,8 @@
                 startBtn.textContent = 'PAUSE';
                 if (timeRemaining === TOTAL_TIME) {
                     playSound('start');
-                    bgMetadataReady.then(() => {
-                        bgSchedule = generateBgSchedule();
-                        bgScheduleIdx = 0;
-                    });
+                    bgSchedule = generateBgSchedule();
+                    bgScheduleIdx = 0;
                 }
             } else {
                 isRunning = false;
