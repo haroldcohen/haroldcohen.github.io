@@ -164,10 +164,22 @@
         // Audio
         let audioUnlocked = false;
         const sounds = {
-            start: new Audio('assets/audio/alerts/20-minutes.mp3'),
+            start:     new Audio('assets/audio/alerts/20-minutes.mp3'),
+            alert15:   new Audio('assets/audio/alerts/15-minutes.mp3'),
+            alert10:   new Audio('assets/audio/alerts/10-minutes.mp3'),
+            alert5:    new Audio('assets/audio/alerts/5-minutes.mp3'),
+            alert1:    new Audio('assets/audio/alerts/1-minute.mp3'),
             countdown: new Audio('assets/audio/alerts/rupture-countdown.mp3'),
         };
         Object.values(sounds).forEach(a => a.preload = 'auto');
+
+        const MILESTONES = [
+            { time: 15 * 60 * 100, key: 'alert15' },
+            { time: 10 * 60 * 100, key: 'alert10' },
+            { time:  5 * 60 * 100, key: 'alert5'  },
+            { time:  1 * 60 * 100, key: 'alert1'  },
+        ];
+        const milestonesPlayed = new Set();
 
         function unlockAudio() {
             if (audioUnlocked) return;
@@ -208,15 +220,25 @@
             penaltyBtn.disabled = timeRemaining <= PENALTY_FLOOR;
         }
 
+        function checkMilestones() {
+            for (const { time, key } of MILESTONES) {
+                if (timeRemaining === time && !milestonesPlayed.has(key)) {
+                    playSound(key);
+                    milestonesPlayed.add(key);
+                }
+            }
+            if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
+                playSound('countdown');
+                countdownPlayed = true;
+            }
+        }
+
         function tick() {
             if (timeRemaining > 0) {
                 timeRemaining--;
                 updateDisplay();
                 updateTimerState();
-                if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
-                    playSound('countdown');
-                    countdownPlayed = true;
-                }
+                checkMilestones();
             } else {
                 clearInterval(interval);
                 interval = null;
@@ -261,6 +283,7 @@
             interval = null;
             timeRemaining = TOTAL_TIME;
             countdownPlayed = false;
+            milestonesPlayed.clear();
             updateDisplay();
             updateTimerState();
             startBtn.textContent = 'START';
