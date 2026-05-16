@@ -161,7 +161,7 @@
         const penaltyBtn = document.getElementById('penaltyBtn');
         const timerDisplay = document.querySelector('.timer-display');
 
-        // Audio
+        // Alert sounds
         let audioUnlocked = false;
         const sounds = {
             start:     new Audio('assets/audio/alerts/20-minutes.mp3'),
@@ -180,6 +180,84 @@
             { time:  1 * 60 * 100, key: 'alert1'  },
         ];
         const milestonesPlayed = new Set();
+
+        // Background noises
+        const bgSounds = [
+            new Audio('assets/audio/alerts/timer-background-noise-1.m4a'),
+            new Audio('assets/audio/alerts/timer-background-noise-2.m4a'),
+            new Audio('assets/audio/alerts/timer-background-noise-3.m4a'),
+        ];
+        bgSounds.forEach(a => a.preload = 'auto');
+
+        const bgMetadataReady = Promise.all(bgSounds.map(audio =>
+            new Promise(resolve => {
+                if (!isNaN(audio.duration) && audio.duration > 0) resolve();
+                else {
+                    audio.addEventListener('loadedmetadata', resolve, { once: true });
+                    audio.addEventListener('error', resolve, { once: true });
+                }
+            })
+        ));
+
+        // Alert times in centiseconds (timeRemaining values when alerts fire)
+        const ALERT_TIMES_CS = [90000, 60000, 30000, 6000, 1000];
+        const BG_ALERT_MARGIN = 500; // 5s buffer around alerts
+        const BG_MIN_INTERVAL = 12000; // 2 min between plays
+        const BG_MAX_INTERVAL = 18000; // 3 min between plays
+
+        let bgSchedule = []; // [{time, trackIdx}] sorted descending
+        let bgScheduleIdx = 0;
+
+        function bgConflicts(startTime, durationCs) {
+            const endTime = startTime - durationCs;
+            return ALERT_TIMES_CS.some(a =>
+                a <= startTime + BG_ALERT_MARGIN &&
+                a >= endTime - BG_ALERT_MARGIN
+            );
+        }
+
+        function generateBgSchedule() {
+            const schedule = [];
+            const unplayed = [0, 1, 2];
+            const interval = () => BG_MIN_INTERVAL + Math.floor(Math.random() * (BG_MAX_INTERVAL - BG_MIN_INTERVAL));
+
+            let nextTime = TOTAL_TIME - interval();
+
+            while (nextTime > PENALTY_FLOOR + 3000) {
+                const i = unplayed.length > 0
+                    ? Math.floor(Math.random() * unplayed.length)
+                    : -1;
+                const trackIdx = i >= 0 ? unplayed.splice(i, 1)[0] : Math.floor(Math.random() * bgSounds.length);
+                const durationCs = Math.ceil((bgSounds[trackIdx].duration || 5) * 100);
+
+                let placedTime = nextTime;
+                let placed = !bgConflicts(placedTime, durationCs);
+
+                if (!placed) {
+                    for (const a of ALERT_TIMES_CS) {
+                        if (a <= placedTime + BG_ALERT_MARGIN && a >= placedTime - durationCs - BG_ALERT_MARGIN) {
+                            const before = a + durationCs + BG_ALERT_MARGIN;
+                            if (before <= TOTAL_TIME && !bgConflicts(before, durationCs)) {
+                                placedTime = before; placed = true; break;
+                            }
+                            const after = a - BG_ALERT_MARGIN;
+                            if (after > PENALTY_FLOOR + 3000 && !bgConflicts(after, durationCs)) {
+                                placedTime = after; placed = true; break;
+                            }
+                        }
+                    }
+                }
+
+                if (placed && placedTime > PENALTY_FLOOR + 3000) {
+                    schedule.push({ time: placedTime, trackIdx });
+                    nextTime = (placedTime - durationCs) - interval();
+                } else {
+                    nextTime -= BG_MIN_INTERVAL;
+                }
+            }
+
+            return schedule.sort((a, b) => b.time - a.time);
+        }
 
         function unlockAudio() {
             if (audioUnlocked) return;
@@ -233,12 +311,24 @@
             }
         }
 
+        function checkBgSounds() {
+            while (bgScheduleIdx < bgSchedule.length && timeRemaining <= bgSchedule[bgScheduleIdx].time) {
+                if (timeRemaining === bgSchedule[bgScheduleIdx].time) {
+                    const { trackIdx } = bgSchedule[bgScheduleIdx];
+                    bgSounds[trackIdx].currentTime = 0;
+                    bgSounds[trackIdx].play().catch(() => {});
+                }
+                bgScheduleIdx++;
+            }
+        }
+
         function tick() {
             if (timeRemaining > 0) {
                 timeRemaining--;
                 updateDisplay();
                 updateTimerState();
                 checkMilestones();
+                checkBgSounds();
             } else {
                 clearInterval(interval);
                 interval = null;
@@ -254,6 +344,10 @@
                 startBtn.textContent = 'PAUSE';
                 if (timeRemaining === TOTAL_TIME) {
                     playSound('start');
+                    bgMetadataReady.then(() => {
+                        bgSchedule = generateBgSchedule();
+                        bgScheduleIdx = 0;
+                    });
                 }
             } else {
                 isRunning = false;
@@ -284,6 +378,8 @@
             timeRemaining = TOTAL_TIME;
             countdownPlayed = false;
             milestonesPlayed.clear();
+            bgSchedule = [];
+            bgScheduleIdx = 0;
             updateDisplay();
             updateTimerState();
             startBtn.textContent = 'START';
