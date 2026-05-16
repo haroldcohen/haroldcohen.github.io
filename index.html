@@ -147,11 +147,14 @@
         const TOTAL_TIME = 20 * 60 * 100;
         const PENALTY_AMOUNT = 2 * 60 * 100;
         const PENALTY_FLOOR = 10 * 100;
+        const BREACH_ALARM_CS = 600;
 
         let timeRemaining = TOTAL_TIME;
         let isRunning = false;
         let interval = null;
+        let pendingStart = null;
         let countdownPlayed = false;
+        let countdownAlarmPlayed = false;
 
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
@@ -164,20 +167,21 @@
         // Alert sounds
         let audioUnlocked = false;
         const sounds = {
-            start:     new Audio('assets/audio/alerts/20-minutes.mp3'),
-            alert15:   new Audio('assets/audio/alerts/15-minutes.mp3'),
-            alert10:   new Audio('assets/audio/alerts/10-minutes.mp3'),
-            alert5:    new Audio('assets/audio/alerts/5-minutes.mp3'),
-            alert1:    new Audio('assets/audio/alerts/1-minute.mp3'),
-            countdown: new Audio('assets/audio/alerts/rupture-countdown.m4a'),
+            breachAlarm: new Audio('assets/audio/alerts/breach-alarm.m4a'),
+            start:       new Audio('assets/audio/alerts/20-minutes.mp3'),
+            alert15:     new Audio('assets/audio/alerts/15-minutes.mp3'),
+            alert10:     new Audio('assets/audio/alerts/10-minutes.mp3'),
+            alert5:      new Audio('assets/audio/alerts/5-minutes.mp3'),
+            alert1:      new Audio('assets/audio/alerts/1-minute.mp3'),
+            countdown:   new Audio('assets/audio/alerts/rupture-countdown.m4a'),
         };
         Object.values(sounds).forEach(a => a.preload = 'auto');
 
         const MILESTONES = [
-            { time: 15 * 60 * 100, key: 'alert15' },
-            { time: 10 * 60 * 100, key: 'alert10' },
-            { time:  5 * 60 * 100, key: 'alert5'  },
-            { time:  1 * 60 * 100, key: 'alert1'  },
+            { alarmTime: 15 * 60 * 100 + BREACH_ALARM_CS, alertTime: 15 * 60 * 100, key: 'alert15' },
+            { alarmTime: 10 * 60 * 100 + BREACH_ALARM_CS, alertTime: 10 * 60 * 100, key: 'alert10' },
+            { alarmTime:  5 * 60 * 100 + BREACH_ALARM_CS, alertTime:  5 * 60 * 100, key: 'alert5'  },
+            { alarmTime:  1 * 60 * 100 + BREACH_ALARM_CS, alertTime:  1 * 60 * 100, key: 'alert1'  },
         ];
         const milestonesPlayed = new Set();
 
@@ -190,34 +194,34 @@
         bgSounds.forEach(a => a.preload = 'auto');
         const BG_DURATIONS = [800, 3300, 1100]; // centiseconds
 
-        // Alert times in centiseconds (timeRemaining values when alerts fire)
+        // Alert times — used to protect bg noise scheduling
+        // Zone per alert: [alertTime - margin, alertTime + BREACH_ALARM_CS + margin]
         const ALERT_TIMES_CS = [90000, 60000, 30000, 6000, 1000];
-        const BG_ALERT_MARGIN = 500; // 5s buffer around alerts
-        const BG_MIN_INTERVAL = 12000; // 2 min between plays
-        const BG_MAX_INTERVAL = 18000; // 3 min between plays
+        const BG_ALERT_MARGIN = 500;
+        const BG_MIN_INTERVAL = 12000;
+        const BG_MAX_INTERVAL = 18000;
 
-        let bgSchedule = []; // [{time, trackIdx}] sorted descending
+        let bgSchedule = [];
         let bgScheduleIdx = 0;
 
         function bgConflicts(startTime, durationCs) {
             const endTime = startTime - durationCs;
-            return ALERT_TIMES_CS.some(a =>
-                a <= startTime + BG_ALERT_MARGIN &&
-                a >= endTime - BG_ALERT_MARGIN
-            );
+            return ALERT_TIMES_CS.some(a => {
+                const zoneHigh = a + BREACH_ALARM_CS + BG_ALERT_MARGIN;
+                const zoneLow  = a - BG_ALERT_MARGIN;
+                return startTime >= zoneLow && endTime <= zoneHigh;
+            });
         }
 
         function generateBgSchedule() {
             const schedule = [];
             const unplayed = [0, 1, 2];
-            const interval = () => BG_MIN_INTERVAL + Math.floor(Math.random() * (BG_MAX_INTERVAL - BG_MIN_INTERVAL));
+            const randInterval = () => BG_MIN_INTERVAL + Math.floor(Math.random() * (BG_MAX_INTERVAL - BG_MIN_INTERVAL));
 
-            let nextTime = TOTAL_TIME - interval();
+            let nextTime = TOTAL_TIME - randInterval();
 
             while (nextTime > PENALTY_FLOOR + 3000) {
-                const i = unplayed.length > 0
-                    ? Math.floor(Math.random() * unplayed.length)
-                    : -1;
+                const i = unplayed.length > 0 ? Math.floor(Math.random() * unplayed.length) : -1;
                 const trackIdx = i >= 0 ? unplayed.splice(i, 1)[0] : Math.floor(Math.random() * bgSounds.length);
                 const durationCs = BG_DURATIONS[trackIdx];
 
@@ -226,12 +230,14 @@
 
                 if (!placed) {
                     for (const a of ALERT_TIMES_CS) {
-                        if (a <= placedTime + BG_ALERT_MARGIN && a >= placedTime - durationCs - BG_ALERT_MARGIN) {
-                            const before = a + durationCs + BG_ALERT_MARGIN;
+                        const zoneHigh = a + BREACH_ALARM_CS + BG_ALERT_MARGIN;
+                        const zoneLow  = a - BG_ALERT_MARGIN;
+                        if (placedTime >= zoneLow && placedTime - durationCs <= zoneHigh) {
+                            const before = zoneHigh + durationCs + 1;
                             if (before <= TOTAL_TIME && !bgConflicts(before, durationCs)) {
                                 placedTime = before; placed = true; break;
                             }
-                            const after = a - BG_ALERT_MARGIN;
+                            const after = zoneLow - 1;
                             if (after > PENALTY_FLOOR + 3000 && !bgConflicts(after, durationCs)) {
                                 placedTime = after; placed = true; break;
                             }
@@ -241,7 +247,7 @@
 
                 if (placed && placedTime > PENALTY_FLOOR + 3000) {
                     schedule.push({ time: placedTime, trackIdx });
-                    nextTime = (placedTime - durationCs) - interval();
+                    nextTime = (placedTime - durationCs) - randInterval();
                 } else {
                     nextTime -= BG_MIN_INTERVAL;
                 }
@@ -290,11 +296,19 @@
         }
 
         function checkMilestones() {
-            for (const { time, key } of MILESTONES) {
-                if (timeRemaining === time && !milestonesPlayed.has(key)) {
+            for (const { alarmTime, alertTime, key } of MILESTONES) {
+                if (timeRemaining === alarmTime && !milestonesPlayed.has('alarm_' + key)) {
+                    playSound('breachAlarm');
+                    milestonesPlayed.add('alarm_' + key);
+                }
+                if (timeRemaining === alertTime && !milestonesPlayed.has(key)) {
                     playSound(key);
                     milestonesPlayed.add(key);
                 }
+            }
+            if (timeRemaining === PENALTY_FLOOR + BREACH_ALARM_CS && !countdownAlarmPlayed) {
+                playSound('breachAlarm');
+                countdownAlarmPlayed = true;
             }
             if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
                 playSound('countdown');
@@ -328,15 +342,31 @@
         }
 
         startBtn.addEventListener('click', () => {
+            // Cancel pending start if clicked during the 6s breach alarm delay
+            if (pendingStart !== null) {
+                clearTimeout(pendingStart);
+                pendingStart = null;
+                startBtn.textContent = 'START';
+                return;
+            }
+
             if (!isRunning) {
                 unlockAudio();
-                isRunning = true;
-                interval = setInterval(tick, 10);
                 startBtn.textContent = 'PAUSE';
+
                 if (timeRemaining === TOTAL_TIME) {
-                    playSound('start');
-                    bgSchedule = generateBgSchedule();
-                    bgScheduleIdx = 0;
+                    playSound('breachAlarm');
+                    pendingStart = setTimeout(() => {
+                        pendingStart = null;
+                        isRunning = true;
+                        interval = setInterval(tick, 10);
+                        playSound('start');
+                        bgSchedule = generateBgSchedule();
+                        bgScheduleIdx = 0;
+                    }, 6000);
+                } else {
+                    isRunning = true;
+                    interval = setInterval(tick, 10);
                 }
             } else {
                 isRunning = false;
@@ -361,11 +391,16 @@
         });
 
         resetBtn.addEventListener('click', () => {
+            if (pendingStart !== null) {
+                clearTimeout(pendingStart);
+                pendingStart = null;
+            }
             isRunning = false;
             clearInterval(interval);
             interval = null;
             timeRemaining = TOTAL_TIME;
             countdownPlayed = false;
+            countdownAlarmPlayed = false;
             milestonesPlayed.clear();
             bgSchedule = [];
             bgScheduleIdx = 0;
