@@ -6,7 +6,7 @@
     <title>Dead End</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after {
             margin: 0;
@@ -33,13 +33,16 @@
 
         .title-banner {
             background-color: #FFCC00;
-            color: #000000;
-            font-family: 'Black Ops One', sans-serif;
-            font-size: clamp(2rem, 10vw, 3.5rem);
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: clamp(10px, 2vw, 18px) 20px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+        }
+
+        .title-banner img {
+            height: clamp(2rem, 8vw, 3.2rem);
+            width: auto;
+            display: block;
         }
 
         .content {
@@ -78,7 +81,9 @@
 </head>
 <body>
     <div class="frame">
-        <div class="title-banner">Dead End</div>
+        <div class="title-banner">
+            <img src="assets/graphics/logo-deadend_black.svg" alt="Dead End">
+        </div>
         <div class="content">
             <a href="notice.html" class="nav-btn">Notice</a>
             <a href="timer.html" class="nav-btn">Timer</a>
