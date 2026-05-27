@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dead End - Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .frame {
+            width: min(95vw, 900px);
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+        }
+
+        .warning-banner {
+            background-color: #FFCC00;
+            color: #000000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1.1rem, 3.5vw, 2.2rem);
+            padding: clamp(10px, 1.5vw, 16px) clamp(14px, 2vw, 24px);
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        .timer-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(16px, 4vw, 48px) clamp(12px, 2vw, 24px);
+        }
+
+        .timer-display {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(2.5rem, 16vw, 10rem);
+            color: #FFCC00;
+            line-height: 1;
+            white-space: nowrap;
+            letter-spacing: -0.05em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 clamp(12px, 2vw, 24px) clamp(14px, 2.5vw, 24px);
+        }
+
+        .controls-left {
+            display: flex;
+            gap: clamp(8px, 1.5vw, 16px);
+        }
+
+        button {
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            border-radius: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.85rem, 2vw, 1.25rem);
+            padding: clamp(7px, 1.2vw, 13px) clamp(14px, 2.5vw, 32px);
+            cursor: pointer;
+            letter-spacing: 0.05em;
+        }
+        .timer-display.danger {
+            color: #D32515;
+        }
+
+        @keyframes blink-end {
+            0%, 100% { color: #D32515; }
+            50% { color: #FFFFFF; }
+        }
+
+        .timer-display.ended {
+            animation: blink-end 0.5s ease-in-out infinite;
+        }
+
+        button:disabled {
+            color: #B0B0B0;
+            border-color: #B0B0B0;
+            cursor: default;
+        }
+
+        .portrait-overlay {
+            display: none;
+        }
+
+        @media (orientation: portrait) {
+            .frame {
+                display: none;
+            }
+            .portrait-overlay {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100vw;
+                height: 100vh;
+                font-family: 'Oswald', sans-serif;
+                font-weight: 700;
+                font-size: clamp(1.5rem, 8vw, 3rem);
+                text-transform: uppercase;
+                color: #FFFFFF;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="portrait-overlay">Tournez votre écran</div>
+    <div class="frame">
+        <div class="warning-banner">WARNING: BIO HAZARDOUS CONTAINER FAILURE</div>
+        <div class="timer-area">
+            <div class="timer-display">
+                <span id="minutes">20</span>:<span id="seconds">00</span>:<span id="centis">00</span>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="controls-left">
+                <button id="startBtn">START</button>
+                <button id="resetBtn">RESET</button>
+            </div>
+            <button id="penaltyBtn">PENALTY</button>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_TIME = 20 * 60 * 100;
+        const PENALTY_AMOUNT = 2 * 60 * 100;
+        const PENALTY_FLOOR = 10 * 100;
+        const BREACH_ALARM_CS = 600;
+
+        let timeRemaining = TOTAL_TIME;
+        let isRunning = false;
+        let interval = null;
+        let pendingStart = null;
+        let countdownPlayed = false;
+        let countdownAlarmPlayed = false;
+
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const centisEl = document.getElementById('centis');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const penaltyBtn = document.getElementById('penaltyBtn');
+        const timerDisplay = document.querySelector('.timer-display');
+
+        // Alert sounds
+        let audioUnlocked = false;
+        const sounds = {
+            breachAlarm: new Audio('assets/audio/alerts/breach-alarm.m4a'),
+            start:       new Audio('assets/audio/alerts/20-minutes.mp3'),
+            alert15:     new Audio('assets/audio/alerts/15-minutes.mp3'),
+            alert10:     new Audio('assets/audio/alerts/10-minutes.mp3'),
+            alert5:      new Audio('assets/audio/alerts/5-minutes.mp3'),
+            alert1:      new Audio('assets/audio/alerts/1-minute.mp3'),
+            countdown:   new Audio('assets/audio/alerts/rupture-countdown.m4a'),
+        };
+        Object.values(sounds).forEach(a => a.preload = 'auto');
+
+        const MILESTONES = [
+            { alarmTime: 15 * 60 * 100 + BREACH_ALARM_CS, alertTime: 15 * 60 * 100, key: 'alert15' },
+            { alarmTime: 10 * 60 * 100 + BREACH_ALARM_CS, alertTime: 10 * 60 * 100, key: 'alert10' },
+            { alarmTime:  5 * 60 * 100 + BREACH_ALARM_CS, alertTime:  5 * 60 * 100, key: 'alert5'  },
+            { alarmTime:  1 * 60 * 100 + BREACH_ALARM_CS, alertTime:  1 * 60 * 100, key: 'alert1'  },
+        ];
+        const milestonesPlayed = new Set();
+
+        // Background noises
+        const bgSounds = [
+            new Audio('assets/audio/alerts/timer-background-noise-1.m4a'),
+            new Audio('assets/audio/alerts/timer-background-noise-2.m4a'),
+            new Audio('assets/audio/alerts/timer-background-noise-3.m4a'),
+        ];
+        bgSounds.forEach(a => a.preload = 'auto');
+        const BG_DURATIONS = [800, 3300, 1100]; // centiseconds
+
+        // Alert times — used to protect bg noise scheduling
+        // Zone per alert: [alertTime - margin, alertTime + BREACH_ALARM_CS + margin]
+        const ALERT_TIMES_CS = [90000, 60000, 30000, 6000, 1000];
+        const BG_ALERT_MARGIN = 500;
+        const BG_MIN_INTERVAL = 12000;
+        const BG_MAX_INTERVAL = 18000;
+
+        let bgSchedule = [];
+        let bgScheduleIdx = 0;
+
+        function bgConflicts(startTime, durationCs) {
+            const endTime = startTime - durationCs;
+            return ALERT_TIMES_CS.some(a => {
+                const zoneHigh = a + BREACH_ALARM_CS + BG_ALERT_MARGIN;
+                const zoneLow  = a - BG_ALERT_MARGIN;
+                return startTime >= zoneLow && endTime <= zoneHigh;
+            });
+        }
+
+        function generateBgSchedule() {
+            const schedule = [];
+            const unplayed = [0, 1, 2];
+            const randInterval = () => BG_MIN_INTERVAL + Math.floor(Math.random() * (BG_MAX_INTERVAL - BG_MIN_INTERVAL));
+
+            let nextTime = TOTAL_TIME - randInterval();
+
+            while (nextTime > PENALTY_FLOOR + 3000) {
+                const i = unplayed.length > 0 ? Math.floor(Math.random() * unplayed.length) : -1;
+                const trackIdx = i >= 0 ? unplayed.splice(i, 1)[0] : Math.floor(Math.random() * bgSounds.length);
+                const durationCs = BG_DURATIONS[trackIdx];
+
+                let placedTime = nextTime;
+                let placed = !bgConflicts(placedTime, durationCs);
+
+                if (!placed) {
+                    for (const a of ALERT_TIMES_CS) {
+                        const zoneHigh = a + BREACH_ALARM_CS + BG_ALERT_MARGIN;
+                        const zoneLow  = a - BG_ALERT_MARGIN;
+                        if (placedTime >= zoneLow && placedTime - durationCs <= zoneHigh) {
+                            const before = zoneHigh + durationCs + 1;
+                            if (before <= TOTAL_TIME && !bgConflicts(before, durationCs)) {
+                                placedTime = before; placed = true; break;
+                            }
+                            const after = zoneLow - 1;
+                            if (after > PENALTY_FLOOR + 3000 && !bgConflicts(after, durationCs)) {
+                                placedTime = after; placed = true; break;
+                            }
+                        }
+                    }
+                }
+
+                if (placed && placedTime > PENALTY_FLOOR + 3000) {
+                    schedule.push({ time: placedTime, trackIdx });
+                    nextTime = (placedTime - durationCs) - randInterval();
+                } else {
+                    nextTime -= BG_MIN_INTERVAL;
+                }
+            }
+
+            return schedule.sort((a, b) => b.time - a.time);
+        }
+
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            audioUnlocked = true;
+        }
+
+        function playSound(key) {
+            const audio = sounds[key];
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+        }
+
+        function updateDisplay() {
+            const m = Math.floor(timeRemaining / 6000);
+            const s = Math.floor((timeRemaining % 6000) / 100);
+            const c = timeRemaining % 100;
+            minutesEl.textContent = String(m).padStart(2, '0');
+            secondsEl.textContent = String(s).padStart(2, '0');
+            centisEl.textContent = String(c).padStart(2, '0');
+        }
+
+        function updateTimerState() {
+            if (timeRemaining === 0) {
+                timerDisplay.classList.remove('danger');
+                timerDisplay.classList.add('ended');
+            } else if (timeRemaining <= 6000) {
+                timerDisplay.classList.add('danger');
+                timerDisplay.classList.remove('ended');
+            } else {
+                timerDisplay.classList.remove('danger', 'ended');
+            }
+            penaltyBtn.disabled = timeRemaining <= PENALTY_FLOOR;
+        }
+
+        function checkMilestones() {
+            for (const { alarmTime, alertTime, key } of MILESTONES) {
+                if (timeRemaining === alarmTime && !milestonesPlayed.has('alarm_' + key)) {
+                    playSound('breachAlarm');
+                    milestonesPlayed.add('alarm_' + key);
+                }
+                if (timeRemaining === alertTime && !milestonesPlayed.has(key)) {
+                    playSound(key);
+                    milestonesPlayed.add(key);
+                }
+            }
+            if (timeRemaining === PENALTY_FLOOR + BREACH_ALARM_CS && !countdownAlarmPlayed) {
+                playSound('breachAlarm');
+                countdownAlarmPlayed = true;
+            }
+            if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
+                playSound('countdown');
+                countdownPlayed = true;
+            }
+        }
+
+        function checkBgSounds() {
+            while (bgScheduleIdx < bgSchedule.length && timeRemaining <= bgSchedule[bgScheduleIdx].time) {
+                if (timeRemaining === bgSchedule[bgScheduleIdx].time) {
+                    const { trackIdx } = bgSchedule[bgScheduleIdx];
+                    bgSounds[trackIdx].currentTime = 0;
+                    bgSounds[trackIdx].play().catch(() => {});
+                }
+                bgScheduleIdx++;
+            }
+        }
+
+        function tick() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                updateDisplay();
+                updateTimerState();
+                checkMilestones();
+                checkBgSounds();
+            } else {
+                clearInterval(interval);
+                interval = null;
+                isRunning = false;
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            // Cancel pending start if clicked during the 6s breach alarm delay
+            if (pendingStart !== null) {
+                clearTimeout(pendingStart);
+                pendingStart = null;
+                startBtn.textContent = 'START';
+                return;
+            }
+
+            if (!isRunning) {
+                unlockAudio();
+                startBtn.textContent = 'PAUSE';
+
+                if (timeRemaining === TOTAL_TIME) {
+                    playSound('breachAlarm');
+                    pendingStart = setTimeout(() => {
+                        pendingStart = null;
+                        isRunning = true;
+                        interval = setInterval(tick, 10);
+                        playSound('start');
+                        bgSchedule = generateBgSchedule();
+                        bgScheduleIdx = 0;
+                    }, 6000);
+                } else {
+                    isRunning = true;
+                    interval = setInterval(tick, 10);
+                }
+            } else {
+                isRunning = false;
+                clearInterval(interval);
+                interval = null;
+                startBtn.textContent = 'RESUME';
+            }
+        });
+
+        penaltyBtn.addEventListener('click', () => {
+            if (timeRemaining - PENALTY_AMOUNT < PENALTY_FLOOR) {
+                timeRemaining = PENALTY_FLOOR;
+            } else {
+                timeRemaining -= PENALTY_AMOUNT;
+            }
+            if (timeRemaining === PENALTY_FLOOR && !countdownPlayed) {
+                playSound('countdown');
+                countdownPlayed = true;
+            }
+            updateDisplay();
+            updateTimerState();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (pendingStart !== null) {
+                clearTimeout(pendingStart);
+                pendingStart = null;
+            }
+            isRunning = false;
+            clearInterval(interval);
+            interval = null;
+            timeRemaining = TOTAL_TIME;
+            countdownPlayed = false;
+            countdownAlarmPlayed = false;
+            milestonesPlayed.clear();
+            bgSchedule = [];
+            bgScheduleIdx = 0;
+            updateDisplay();
+            updateTimerState();
+            startBtn.textContent = 'START';
+        });
+    </script>
+</body>
+</html>
