@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dead End - Notice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .frame {
+            flex: 1;
+            max-width: 420px;
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-banner {
+            background-color: #FFCC00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(10px, 2vw, 18px) 0 calc(clamp(10px, 2vw, 18px) + 8.5px);
+        }
+
+        .title-banner img {
+            width: 60%;
+            height: auto;
+            display: block;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(12px, 3vw, 20px);
+            padding: clamp(40px, 10vw, 80px) clamp(20px, 5vw, 40px);
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            border-radius: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            padding: clamp(12px, 2.5vw, 18px) 20px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="title-banner">
+            <img src="assets/graphics/logo-deadend_black.svg" alt="Dead End">
+        </div>
+        <div class="content">
+            <a href="notice-video.html" class="nav-btn">Notice Video</a>
+            <a href="notice-texte.html" class="nav-btn">Notice Texte</a>
+        </div>
+    </div>
+</body>
+</html>
