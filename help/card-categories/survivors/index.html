@@ -93,7 +93,7 @@
 
         .table-header {
             display: grid;
-            grid-template-columns: clamp(56px, 14vw, 72px) clamp(70px, 18vw, 100px) 1fr;
+            grid-template-columns: clamp(64px, 16vw, 80px) clamp(70px, 18vw, 100px) 1fr;
             border-bottom: 1.5px solid #FFCC00;
         }
 
@@ -107,9 +107,13 @@
             padding: 5px 6px;
         }
 
+        .table-header span:first-child {
+            padding-left: 0;
+        }
+
         .table-row {
             display: grid;
-            grid-template-columns: clamp(56px, 14vw, 72px) clamp(70px, 18vw, 100px) 1fr;
+            grid-template-columns: clamp(64px, 16vw, 80px) clamp(70px, 18vw, 100px) 1fr;
             align-items: center;
             border-bottom: 1.5px solid #FFCC00;
         }
@@ -117,13 +121,13 @@
         .table-row .cell-icon {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: clamp(6px, 1.5vw, 10px) 6px;
+            justify-content: flex-start;
+            padding: clamp(6px, 1.5vw, 10px) 6px clamp(6px, 1.5vw, 10px) 0;
         }
 
         .table-row .cell-icon img {
-            width: clamp(44px, 11vw, 56px);
-            height: clamp(44px, 11vw, 56px);
+            width: clamp(52px, 13vw, 66px);
+            height: clamp(52px, 13vw, 66px);
             object-fit: contain;
         }
 
