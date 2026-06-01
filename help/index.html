@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dead End - Aide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .frame {
+            flex: 1;
+            max-width: 420px;
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-banner {
+            background-color: #FFCC00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(10px, 2vw, 18px) 0 calc(clamp(10px, 2vw, 18px) + 8.5px);
+            flex-shrink: 0;
+        }
+
+        .title-banner a {
+            display: contents;
+        }
+
+        .title-banner img {
+            width: 60%;
+            height: auto;
+            display: block;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(16px, 4vw, 24px);
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 3vw, 18px);
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            color: #FFCC00;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .content p {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
+            font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+            color: #FFFFFF;
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        .content p a {
+            color: #FFFFFF;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-btn {
+            display: block;
+            width: 100%;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            padding: clamp(10px, 2vw, 14px) 10px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .menu-btn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            padding: clamp(12px, 3vw, 20px) clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);
+        }
+
+        .separator {
+            border: none;
+            border-top: 1px solid #FFFFFF;
+            margin-bottom: clamp(12px, 3vw, 20px);
+            opacity: 0.4;
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            padding: clamp(10px, 2vw, 14px) 10px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="title-banner">
+            <a href="/"><img src="../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+        </div>
+        <div class="content">
+            <div class="section-title">Aide</div>
+
+            <p>Si c'est votre première partie, nous vous conseillons de d'abord consulter <a href="/regles/">les règles</a>.</p>
+
+            <div class="menu">
+                <a class="menu-btn">Lire une carte</a>
+                <a class="menu-btn">Catégories de carte</a>
+                <a class="menu-btn">Effets</a>
+                <a class="menu-btn">Modificateurs d'effets</a>
+                <a class="menu-btn">Grades des cartes</a>
+            </div>
+        </div>
+        <div class="footer">
+            <hr class="separator">
+            <a href="/" class="nav-btn">Retour</a>
+        </div>
+    </div>
+</body>
+</html>
