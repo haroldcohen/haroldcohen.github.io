@@ -156,6 +156,21 @@
             background-color: #FFFFFF;
             color: #000000;
         }
+
+        .nav-btn.home-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn.home-btn img {
+            width: clamp(18px, 4vw, 24px);
+            height: auto;
+        }
+
+        .nav-btn.home-btn:hover img {
+            filter: invert(1);
+        }
     </style>
 </head>
 <body>
@@ -181,7 +196,7 @@
             <hr class="separator">
             <div class="controls">
                 <a href="../5/" class="nav-btn">Retour</a>
-                <a href="../7/" class="nav-btn">Suivant</a>
+                <a href="/" class="nav-btn home-btn"><img src="../../../assets/graphics/nav-icons/home.svg" alt="Accueil"></a>
             </div>
         </div>
     </div>
