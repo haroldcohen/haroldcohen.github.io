@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dead End - Aide</title>
+    <title>Dead End - Lire une carte Horde / Survivant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
@@ -68,56 +68,54 @@
             gap: clamp(12px, 3vw, 18px);
         }
 
-        .section-title {
+        .subsection-title {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: clamp(1rem, 3vw, 1.3rem);
-            color: #FFCC00;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            color: #FFFFFF;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .content p {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 400;
-            font-size: clamp(0.9rem, 2.5vw, 1.05rem);
-            color: #FFFFFF;
-            line-height: 1.5;
-            text-align: justify;
+        .illustration {
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
-        .content p a {
-            color: #FFFFFF;
-            font-weight: 700;
-            text-decoration: underline;
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px);
         }
 
-        .menu {
+        .legend-item {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 8px;
         }
 
-        .menu-btn {
-            display: block;
-            width: 100%;
-            background-color: #000000;
-            color: #FFFFFF;
-            border: 3px solid #FFFFFF;
+        .legend-num {
+            width: clamp(18px, 4.5vw, 22px);
+            height: clamp(18px, 4.5vw, 22px);
+            border: 2px solid #FFCC00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            text-transform: uppercase;
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            padding: clamp(10px, 2vw, 14px) 10px;
-            cursor: pointer;
-            letter-spacing: 0.05em;
-            text-align: center;
-            text-decoration: none;
+            font-size: clamp(0.6rem, 1.8vw, 0.75rem);
+            color: #FFCC00;
+            flex-shrink: 0;
         }
 
-        .menu-btn:hover {
-            background-color: #FFFFFF;
-            color: #000000;
+        .legend-item span {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
+            font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+            color: #FFFFFF;
+            line-height: 1.3;
         }
 
         .footer {
@@ -132,9 +130,13 @@
             opacity: 0.4;
         }
 
+        .controls {
+            display: flex;
+            gap: clamp(10px, 3vw, 16px);
+        }
+
         .nav-btn {
-            display: block;
-            width: 100%;
+            flex: 1;
             background-color: #000000;
             color: #FFFFFF;
             border: 3px solid #FFFFFF;
@@ -147,6 +149,7 @@
             letter-spacing: 0.05em;
             text-align: center;
             text-decoration: none;
+            display: block;
         }
 
         .nav-btn:hover {
@@ -158,24 +161,28 @@
 <body>
     <div class="frame">
         <div class="title-banner">
-            <a href="/"><img src="../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+            <a href="/"><img src="../../../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
         </div>
         <div class="content">
-            <div class="section-title">Aide</div>
+            <div class="subsection-title">Lire une carte Horde / Survivant</div>
 
-            <p>Si c'est votre première partie, nous vous conseillons de d'abord consulter <a href="/regles/">les règles</a>.</p>
+            <img class="illustration" src="../../../assets/graphics/help/read-horde-survivor-card.svg" alt="Anatomie d'une carte Horde / Survivant">
 
-            <div class="menu">
-                <a href="read-cards/horde-survivors/" class="menu-btn">Lire une carte</a>
-                <a class="menu-btn">Catégories de carte</a>
-                <a class="menu-btn">Effets</a>
-                <a class="menu-btn">Modificateurs d'effets</a>
-                <a class="menu-btn">Grades des cartes</a>
+            <div class="legend">
+                <div class="legend-item"><span class="legend-num">1</span><span>Catégorie de la carte</span></div>
+                <div class="legend-item"><span class="legend-num">2</span><span>Grade militaire</span></div>
+                <div class="legend-item"><span class="legend-num">3</span><span>Grade militaire sup.</span></div>
+                <div class="legend-item"><span class="legend-num">4</span><span>Effet</span></div>
+                <div class="legend-item"><span class="legend-num">5</span><span>Effet avec quantité</span></div>
+                <div class="legend-item"><span class="legend-num">6</span><span>Effet avec durée</span></div>
             </div>
         </div>
         <div class="footer">
             <hr class="separator">
-            <a href="/" class="nav-btn">Retour</a>
+            <div class="controls">
+                <a href="/help/" class="nav-btn">Retour</a>
+                <a href="/help/read-cards/chapters/" class="nav-btn">Suivant</a>
+            </div>
         </div>
     </div>
 </body>
