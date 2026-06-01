@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dead End - Lire une carte de Chapitre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .frame {
+            flex: 1;
+            max-width: 420px;
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-banner {
+            background-color: #FFCC00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(10px, 2vw, 18px) 0 calc(clamp(10px, 2vw, 18px) + 8.5px);
+            flex-shrink: 0;
+        }
+
+        .title-banner a {
+            display: contents;
+        }
+
+        .title-banner img {
+            width: 60%;
+            height: auto;
+            display: block;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(16px, 4vw, 24px);
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 3vw, 18px);
+        }
+
+        .subsection-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .illustration {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .legend-num {
+            width: clamp(18px, 4.5vw, 22px);
+            height: clamp(18px, 4.5vw, 22px);
+            border: 2px solid #FFCC00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.6rem, 1.8vw, 0.75rem);
+            color: #FFCC00;
+            flex-shrink: 0;
+        }
+
+        .legend-item span:last-child {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
+            font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+            color: #FFFFFF;
+            line-height: 1.3;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            padding: clamp(12px, 3vw, 20px) clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);
+        }
+
+        .separator {
+            border: none;
+            border-top: 1px solid #FFFFFF;
+            margin-bottom: clamp(12px, 3vw, 20px);
+            opacity: 0.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: clamp(10px, 3vw, 16px);
+        }
+
+        .nav-btn {
+            flex: 1;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            padding: clamp(10px, 2vw, 14px) 10px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-btn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="title-banner">
+            <a href="/"><img src="../../../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+        </div>
+        <div class="content">
+            <div class="subsection-title">Lire une carte de Chapitre</div>
+
+            <img class="illustration" src="../../../assets/graphics/help/read-chapter-card.svg" alt="Anatomie d'une carte de Chapitre">
+
+            <div class="legend">
+                <div class="legend-item"><span class="legend-num">1</span><span>Bonus de chapitre</span></div>
+                <div class="legend-item"><span class="legend-num">2</span><span>Détail de bonus</span></div>
+                <div class="legend-item"><span class="legend-num">3</span><span>Malus de chapitre</span></div>
+                <div class="legend-item"><span class="legend-num">4</span><span>Détail de malus</span></div>
+                <div class="legend-item full-width"><span class="legend-num">5</span><span>Nom du chapitre</span></div>
+            </div>
+        </div>
+        <div class="footer">
+            <hr class="separator">
+            <div class="controls">
+                <a href="/help/read-cards/horde-survivors/" class="nav-btn">Retour</a>
+                <a class="nav-btn">Suivant</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
