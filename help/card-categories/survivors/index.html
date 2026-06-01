@@ -87,15 +87,14 @@
         }
 
         .card-table {
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
             display: flex;
             flex-direction: column;
         }
 
         .table-header {
             display: grid;
-            grid-template-columns: clamp(36px, 9vw, 48px) clamp(70px, 18vw, 100px) 1fr;
-            border-bottom: 1.5px solid rgba(255, 255, 255, 0.4);
+            grid-template-columns: clamp(48px, 12vw, 62px) clamp(70px, 18vw, 100px) 1fr;
+            border-bottom: 1.5px solid #FFCC00;
         }
 
         .table-header span {
@@ -108,18 +107,11 @@
             padding: 5px 6px;
         }
 
-        .table-header span + span {
-            border-left: 1.5px solid rgba(255, 255, 255, 0.4);
-        }
-
         .table-row {
             display: grid;
-            grid-template-columns: clamp(36px, 9vw, 48px) clamp(70px, 18vw, 100px) 1fr;
+            grid-template-columns: clamp(48px, 12vw, 62px) clamp(70px, 18vw, 100px) 1fr;
             align-items: center;
-        }
-
-        .table-row + .table-row {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1.5px solid #FFCC00;
         }
 
         .table-row .cell-icon {
@@ -130,8 +122,8 @@
         }
 
         .table-row .cell-icon img {
-            width: clamp(24px, 6vw, 32px);
-            height: clamp(24px, 6vw, 32px);
+            width: clamp(36px, 9vw, 48px);
+            height: clamp(36px, 9vw, 48px);
             object-fit: contain;
         }
 
@@ -141,12 +133,10 @@
             font-size: clamp(0.75rem, 2vw, 0.9rem);
             color: #FFFFFF;
             padding: clamp(6px, 1.5vw, 10px) 6px;
-            border-left: 1.5px solid rgba(255, 255, 255, 0.4);
         }
 
         .table-row .cell-desc {
             padding: clamp(6px, 1.5vw, 10px) 8px;
-            border-left: 1.5px solid rgba(255, 255, 255, 0.4);
             display: flex;
             flex-direction: column;
             gap: 3px;
