@@ -86,69 +86,6 @@
             text-align: justify;
         }
 
-        /* Diagram */
-        .diagram {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: clamp(6px, 1.5vw, 10px);
-            padding: clamp(8px, 2vw, 12px) 0;
-        }
-
-        .card {
-            background-color: #FFCC00;
-            color: #000000;
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            font-size: clamp(0.6rem, 1.8vw, 0.8rem);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: clamp(26px, 7vw, 36px);
-            height: clamp(32px, 8.5vw, 44px);
-            flex-shrink: 0;
-        }
-
-        .card-stack {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(3px, 0.8vw, 5px);
-            flex-shrink: 0;
-        }
-
-        .left-group {
-            display: flex;
-            align-items: center;
-            gap: clamp(3px, 0.8vw, 5px);
-            flex-shrink: 0;
-        }
-
-        .chapters-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            flex-shrink: 0;
-            padding-top: calc(clamp(0.6rem, 1.8vw, 0.8rem) * 1.2 + 7px);
-        }
-
-        .chapters-row {
-            display: flex;
-            gap: clamp(3px, 0.8vw, 5px);
-        }
-
-        .chapters-label {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            font-size: clamp(0.6rem, 1.8vw, 0.8rem);
-            color: #FFCC00;
-            border-top: 2px solid #FFCC00;
-            padding-top: 2px;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* Numbered list */
         .notice-list {
             list-style: none;
             display: flex;
@@ -215,52 +152,27 @@
 <body>
     <div class="frame">
         <div class="title-banner">
-            <a href="index.html"><img src="assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+            <a href="/"><img src="../../../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
         </div>
         <div class="content">
-            <div class="section-title">2. &nbsp;Démarrage</div>
+            <div class="section-title">3. &nbsp;Démarrage d'un chapitre</div>
 
-            <p>Choisissez le nombre de chapitres et l'ordre dans lequels vous voulez les passer puis placer les cartes et les pioches comme qui suit&nbsp;:</p>
+            <p>Un chapitre a une limite de 20 minutes. Un minuteur est disponible via l'écran d'accueil.</p>
 
-            <div class="diagram">
-                <div class="left-group">
-                    <div class="card">1</div>
-                    <div class="card-stack">
-                        <div class="card">2</div>
-                        <div class="card">3</div>
-                    </div>
-                </div>
-                <div class="chapters-group">
-                    <div class="chapters-row">
-                        <div class="card"></div>
-                        <div class="card"></div>
-                        <div class="card"></div>
-                        <div class="card"></div>
-                    </div>
-                    <div class="chapters-label">4</div>
-                </div>
-                <div class="card">5</div>
-                <div class="card-stack">
-                    <div class="card">6</div>
-                    <div class="card">7</div>
-                </div>
-            </div>
+            <p>Objectif&nbsp;: Vider complètement la pioche Horde avant la fin du timer.</p>
 
             <ol class="notice-list">
-                <li><span class="num">1.</span><span>Carte de la Horde</span></li>
-                <li><span class="num">2.</span><span>Pioche de la Horde</span></li>
-                <li><span class="num">3.</span><span>Défausse de la Horde</span></li>
-                <li><span class="num">4.</span><span>Chapitres</span></li>
-                <li><span class="num">5.</span><span>Kitt Peak</span></li>
-                <li><span class="num">6.</span><span>Pioche des Survivants</span></li>
-                <li><span class="num">7.</span><span>Défausse des Survivants</span></li>
+                <li><span class="num">1.</span><span>Placer la carte "Lucy" quelque part dans le haut du paquet.</span></li>
+                <li><span class="num">2.</span><span>Distribuer à chaque joueur 5 cartes "Survivants".</span></li>
+                <li><span class="num">3.</span><span>Si il reste des cartes, les placer dans la pioche "Survivants".</span></li>
+                <li><span class="num">4.</span><span>Le joueur qui a "Lucy" dans sa main est le premier joueur.</span></li>
             </ol>
         </div>
         <div class="footer">
             <hr class="separator">
             <div class="controls">
-                <a href="notice-texte.html" class="nav-btn">Retour</a>
-                <a href="notice-texte-3.html" class="nav-btn">Suivant</a>
+                <a href="../2/" class="nav-btn">Retour</a>
+                <a href="../4/" class="nav-btn">Suivant</a>
             </div>
         </div>
     </div>

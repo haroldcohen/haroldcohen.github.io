@@ -68,11 +68,11 @@
             gap: clamp(12px, 3vw, 18px);
         }
 
-        .section-title {
+        .subsection-title {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: clamp(1rem, 3vw, 1.3rem);
-            color: #FFCC00;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            color: #FFFFFF;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
@@ -152,27 +152,26 @@
 <body>
     <div class="frame">
         <div class="title-banner">
-            <a href="index.html"><img src="assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+            <a href="/"><img src="../../../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
         </div>
         <div class="content">
-            <div class="section-title">3. &nbsp;Démarrage d'un chapitre</div>
+            <div class="subsection-title">En cas d'impasse</div>
 
-            <p>Un chapitre a une limite de 20 minutes. Un minuteur est disponible via l'écran d'accueil.</p>
-
-            <p>Objectif&nbsp;: Vider complètement la pioche Horde avant la fin du timer.</p>
+            <p>Si personne ne peut ou ne veut aider le joueur, alors à la fin du tour&nbsp;:</p>
 
             <ol class="notice-list">
-                <li><span class="num">1.</span><span>Placer la carte "Lucy" quelque part dans le haut du paquet.</span></li>
-                <li><span class="num">2.</span><span>Distribuer à chaque joueur 5 cartes "Survivants".</span></li>
-                <li><span class="num">3.</span><span>Si il reste des cartes, les placer dans la pioche "Survivants".</span></li>
-                <li><span class="num">4.</span><span>Le joueur qui a "Lucy" dans sa main est le premier joueur.</span></li>
+                <li><span class="num">1.</span><span>Le survivant devient zombie</span></li>
+                <li><span class="num">2.</span><span>Il remet ses cartes dans la pioche Survivants qui servira aux autres</span></li>
+                <li><span class="num">3.</span><span>Au tour suivant, il piochera 3 cartes dans la pile de la Horde</span></li>
+                <li><span class="num">4.</span><span>Son objectif est maintenant d'empêcher les autres survivants de rejoindre Kitt Peak</span></li>
+                <li><span class="num">5.</span><span>Une fois son tour, il peut cibler n'importe quel survivant, mais il ne peut utiliser qu'une carte par tour.</span></li>
             </ol>
         </div>
         <div class="footer">
             <hr class="separator">
             <div class="controls">
-                <a href="notice-texte-2.html" class="nav-btn">Retour</a>
-                <a href="notice-texte-4.html" class="nav-btn">Suivant</a>
+                <a href="../4/" class="nav-btn">Retour</a>
+                <a href="../6/" class="nav-btn">Suivant</a>
             </div>
         </div>
     </div>

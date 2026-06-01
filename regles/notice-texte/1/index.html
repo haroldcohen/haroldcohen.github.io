@@ -61,11 +61,10 @@
         .content {
             flex: 1;
             overflow-y: auto;
-            padding: clamp(16px, 4vw, 24px);
-            padding-bottom: 0;
+            padding: clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px) 0;
             display: flex;
             flex-direction: column;
-            gap: clamp(12px, 3vw, 18px);
+            gap: clamp(12px, 3vw, 20px);
         }
 
         .section-title {
@@ -77,44 +76,13 @@
             letter-spacing: 0.05em;
         }
 
-        .subsection-title {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            color: #FFFFFF;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
         .content p {
             font-family: 'Oswald', sans-serif;
             font-weight: 400;
-            font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
             color: #FFFFFF;
             line-height: 1.5;
             text-align: justify;
-        }
-
-        .notice-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: clamp(4px, 1vw, 6px);
-        }
-
-        .notice-list li {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 400;
-            font-size: clamp(0.9rem, 2.5vw, 1.05rem);
-            color: #FFFFFF;
-            display: flex;
-            gap: 8px;
-        }
-
-        .notice-list li span.num {
-            color: #FFCC00;
-            font-weight: 700;
-            flex-shrink: 0;
         }
 
         .footer {
@@ -161,36 +129,20 @@
 <body>
     <div class="frame">
         <div class="title-banner">
-            <a href="index.html"><img src="assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+            <a href="/"><img src="../../../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
         </div>
         <div class="content">
-            <div class="section-title">4. &nbsp;Déroulement d'un tour</div>
-
-            <p>Le tour commence toujours par le survivant qui détient la carte "Lucy", puis continue dans le sens horaire.</p>
-
-            <p>À chacun leur tour, les survivants&nbsp;:</p>
-
-            <ol class="notice-list">
-                <li><span class="num">1.</span><span>Piochent une carte dans la pile de la Horde et la placent devant eux</span></li>
-                <li><span class="num">2.</span><span>Tentent de résoudre cette carte avec celles de leur main</span></li>
-                <li><span class="num">3.</span><span>Si besoin, le joueur peut demander de l'aide au joueur à sa droite et à sa gauche.</span></li>
-            </ol>
-
-            <div class="subsection-title">Résolution réussie</div>
-
-            <p>Si le joueur résoud la carte&nbsp;:</p>
-
-            <ol class="notice-list">
-                <li><span class="num">1.</span><span>Les cartes utilisées vont dans leur défausse respective</span></li>
-                <li><span class="num">2.</span><span>Après avoir joué au moins une carte de sa main, le joueur pioche 1 carte Survivant.</span></li>
-                <li><span class="num">3.</span><span>Le tour passe au joueur suivant.</span></li>
-            </ol>
+            <div class="section-title">1. &nbsp;Objectif</div>
+            <p>Dans Dead End, vous incarnez un groupe de survivants en route vers l'observatoire national de Kitt Peak, dans l'Arizona, un des derniers refuges dans l'apocalypse zombie.</p>
+            <p>Pour y parvenir, vous devez franchir une série de chapitres, chacun représentant une étape périlleuse de votre voyage.</p>
+            <p>Mais attention : chaque impasse peut transformer un survivant en zombie qui se dressera contre vous pour vous empêcher d'atteindre votre objectif.</p>
+            <p>Conditions de victoire : Au moins 1 survivant doit atteindre Kitt Peak.</p>
         </div>
         <div class="footer">
             <hr class="separator">
             <div class="controls">
-                <a href="notice-texte-3.html" class="nav-btn">Retour</a>
-                <a href="notice-texte-5.html" class="nav-btn">Suivant</a>
+                <a href="../../" class="nav-btn">Retour</a>
+                <a href="../2/" class="nav-btn">Suivant</a>
             </div>
         </div>
     </div>
