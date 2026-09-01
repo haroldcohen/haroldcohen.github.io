@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/graphics/favicon.svg">
+    <title>Dead End - Modificateurs d'effets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .frame {
+            flex: 1;
+            max-width: 420px;
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-banner {
+            background-color: #FFCC00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(10px, 2vw, 18px) 0 calc(clamp(10px, 2vw, 18px) + 8.5px);
+            flex-shrink: 0;
+        }
+
+        .title-banner a {
+            display: contents;
+        }
+
+        .title-banner img {
+            width: 60%;
+            height: auto;
+            display: block;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(16px, 4vw, 24px);
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(10px, 2.5vw, 14px);
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            color: #FFCC00;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-table {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: clamp(64px, 16vw, 80px) clamp(70px, 18vw, 100px) 1fr;
+            border-bottom: 1.5px solid #FFCC00;
+        }
+
+        .table-header span {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.6rem, 1.6vw, 0.72rem);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 5px 6px;
+        }
+
+        .table-header span:first-child {
+            padding-left: 0;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: clamp(64px, 16vw, 80px) clamp(70px, 18vw, 100px) 1fr;
+            align-items: center;
+            border-bottom: 1.5px solid #FFCC00;
+        }
+
+        .table-row .cell-icon {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: clamp(6px, 1.5vw, 10px) 6px clamp(6px, 1.5vw, 10px) 0;
+        }
+
+        .table-row .cell-icon img {
+            width: clamp(52px, 13vw, 66px);
+            object-fit: contain;
+        }
+
+        .table-row .cell-name {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.7rem, 1.9vw, 0.85rem);
+            color: #FFFFFF;
+            padding: clamp(6px, 1.5vw, 10px) 6px;
+        }
+
+        .table-row .cell-desc {
+            padding: clamp(6px, 1.5vw, 10px) 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .table-row .cell-desc p {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
+            font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+            color: #FFFFFF;
+            line-height: 1.35;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            padding: clamp(12px, 3vw, 20px) clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);
+        }
+
+        .separator {
+            border: none;
+            border-top: 1px solid #FFFFFF;
+            margin-bottom: clamp(12px, 3vw, 20px);
+            opacity: 0.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: clamp(10px, 3vw, 16px);
+        }
+
+        .nav-btn {
+            flex: 1;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            padding: clamp(10px, 2vw, 14px) 10px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-btn:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="title-banner">
+            <a href="/"><img src="../../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+        </div>
+        <div class="content">
+            <div class="section-title">Modificateurs d'effets</div>
+
+            <div class="card-table">
+                <div class="table-header">
+                    <span>Icone</span>
+                    <span>Nom</span>
+                    <span>Description / Effets</span>
+                </div>
+                <div class="table-row">
+                    <div class="cell-icon"><img src="../../assets/graphics/help/card-mods/last-player.svg" alt="Last Player"></div>
+                    <div class="cell-name">LAST PLAYER</div>
+                    <div class="cell-desc"><p>• Affecte le dernier joueur</p></div>
+                </div>
+                <div class="table-row">
+                    <div class="cell-icon"><img src="../../assets/graphics/help/card-mods/next-player.svg" alt="Next Player"></div>
+                    <div class="cell-name">NEXT PLAYER</div>
+                    <div class="cell-desc"><p>• Affecte le joueur suivant</p></div>
+                </div>
+                <div class="table-row">
+                    <div class="cell-icon"><img src="../../assets/graphics/help/card-mods/splash.svg" alt="Splash"></div>
+                    <div class="cell-name">SPLASH</div>
+                    <div class="cell-desc"><p>• Affecte les équipiers à droite et à gauche du survivant</p></div>
+                </div>
+                <div class="table-row">
+                    <div class="cell-icon"><img src="../../assets/graphics/help/card-mods/on-next-turn.svg" alt="On Next Turn"></div>
+                    <div class="cell-name">ON NEXT TURN</div>
+                    <div class="cell-desc"><p>• Prend effet au prochain tour</p></div>
+                </div>
+                <div class="table-row">
+                    <div class="cell-icon"><img src="../../assets/graphics/help/card-mods/chain.svg" alt="Chain"></div>
+                    <div class="cell-name">CHAIN</div>
+                    <div class="cell-desc"><p>• Multiplie l'effet par 2 si pioché par le survivant précédent</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <hr class="separator">
+            <div class="controls">
+                <a href="/help/" class="nav-btn">Retour</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
