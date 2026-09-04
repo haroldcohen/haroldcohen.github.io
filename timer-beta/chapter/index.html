@@ -289,6 +289,12 @@
             line-height: 1.15;
         }
 
+        .item-detail-description {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 1.5vw, 14px);
+        }
+
         .portrait-overlay {
             display: none;
         }
@@ -363,7 +369,7 @@
             <div id="itemDetailView" class="dice-result-view" hidden>
                 <div class="dice-result-content">
                     <div id="itemDetailHeading" class="dice-result-heading"></div>
-                    <p id="itemDetailDescription" class="sort-description"></p>
+                    <div id="itemDetailDescription" class="item-detail-description"></div>
                 </div>
                 <div class="item-detail-actions">
                     <button id="itemDetailUseBtn" type="button" class="item-detail-use-btn"></button>
@@ -562,14 +568,24 @@
             diceResultList.innerHTML = '';
             aggregated.forEach(({ item, count }) => {
                 const li = document.createElement('li');
-                li.textContent = count > 1 ? `${item.name} x${count}` : item.name;
-                li.title = item.description;
+                li.textContent = count > 1 ? `${item.label.full} x${count}` : item.label.full;
+                li.title = item.description.join('\n');
                 diceResultList.appendChild(li);
             });
         }
 
+        function renderTextLines(container, lines) {
+            container.innerHTML = '';
+            lines.forEach((line) => {
+                const p = document.createElement('p');
+                p.className = 'sort-description';
+                p.textContent = line;
+                container.appendChild(p);
+            });
+        }
+
         function isCrate(item) {
-            return !!item.possibleContent;
+            return !!item.possibleItems;
         }
 
         function useVerb(item) {
@@ -589,8 +605,8 @@
             if (!capriciousFateAcknowledged) return;
 
             currentDetailEntry = entry;
-            itemDetailHeading.textContent = `${entry.item.name} :`;
-            itemDetailDescription.textContent = entry.item.description;
+            itemDetailHeading.textContent = `${entry.item.label.full} :`;
+            renderTextLines(itemDetailDescription, entry.item.description);
             itemDetailUseBtn.textContent = `${useVerb(entry.item)} (${entry.remaining} ${pluralize(entry.remaining, 'restante', 'restantes')})`;
             itemDetailUseBtn.disabled = !chapterStarted;
             itemDetailUseBtn.hidden = false;
@@ -614,8 +630,8 @@
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'sidebar-help-item';
-                btn.textContent = item.name;
-                btn.title = item.description;
+                btn.textContent = item.label.short;
+                btn.title = item.description.join('\n');
                 btn.addEventListener('click', () => showItemDetail(entry));
 
                 entry.buttonEl = btn;
@@ -624,12 +640,12 @@
         }
 
         function openCrate(entry) {
-            const rolledContent = pickWeighted(entry.item.possibleContent);
-            let displayText = rolledContent.contentDisplay;
+            const rolledContent = pickWeighted(entry.item.possibleItems);
+            let lines = rolledContent.contentDisplay;
 
-            if (rolledContent.possibleAmmo) {
-                const rolledAmmo = pickWeighted(rolledContent.possibleAmmo);
-                displayText = displayText.replace(/\bn\b/, rolledAmmo.ammo);
+            if (rolledContent.possibleAmmoQt) {
+                const rolledAmmo = pickWeighted(rolledContent.possibleAmmoQt);
+                lines = lines.map((line) => line.replace('{{possibleAmmoQt.qt}}', rolledAmmo.qt));
             }
 
             entry.remaining -= 1;
@@ -637,7 +653,7 @@
                 entry.buttonEl.remove();
             }
 
-            itemDetailDescription.textContent = displayText;
+            renderTextLines(itemDetailDescription, lines);
             itemDetailUseBtn.hidden = true;
             itemDetailCloseBtn.classList.add('full-width');
         }
@@ -677,7 +693,7 @@
                 renderDiceResultList(aggregatedHelp);
                 renderSidebarHelpList(aggregatedHelp);
 
-                const equipmentBoxGranted = grantedHelp.some((item) => item.name === 'Caisse equipement');
+                const equipmentBoxGranted = grantedHelp.some((item) => item.name === 'equipmentCrane');
                 const fateResult = rollCapriciousFate(fateData, { equipmentBoxGranted });
                 if (fateResult) {
                     sortDescription.textContent = fateResult.description;
