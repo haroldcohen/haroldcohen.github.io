@@ -17,11 +17,16 @@
 
         body {
             background-color: #000000;
-            min-height: 100vh;
-            min-height: 100dvh;
+            /* Deliberately taller than the viewport: iOS Safari renders content behind an
+               expanded toolbar/tab-strip when the page exactly fits (or is shorter than) its
+               chrome-collapsed viewport, since it then treats the page as non-scrollable. The
+               extra height guarantees real scroll room so Safari always positions content
+               below its chrome instead. */
+            min-height: calc(100vh + 150px);
+            min-height: calc(100dvh + 150px);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 20px;
         }
 
