@@ -362,7 +362,7 @@
             <div id="sortView" class="dice-result-view" hidden>
                 <div class="dice-result-content">
                     <div class="dice-result-heading">Caprice du sort :</div>
-                    <p id="sortDescription" class="sort-description"></p>
+                    <div id="sortDescription" class="item-detail-description"></div>
                 </div>
                 <button id="okBtn" class="end-chapter-btn">Ok</button>
             </div>
@@ -547,19 +547,23 @@
             const picked = pickWeighted(pool);
             if (!picked) return null;
 
-            let description = picked.description;
-            if (picked.affectedZombies) {
-                const rolledZombie = pickWeighted(picked.affectedZombies);
-                description = description.replace('<affectedZombies>', rolledZombie.value);
+            const substitutions = [];
+            if (picked.possibleAffectedZombies) {
+                const rolledZombie = pickWeighted(picked.possibleAffectedZombies);
+                substitutions.push(['{{affectedZombies.value}}', rolledZombie.value]);
             }
-            if (picked.player) {
-                const rolledPlayer = pickWeighted(picked.player);
-                description = description.replace('<positionJoueur>', rolledPlayer.player);
+            if (picked.possibleAffectedPlayers) {
+                const rolledAffectedPlayer = pickWeighted(picked.possibleAffectedPlayers);
+                substitutions.push(['{{affectedPlayers.label}}', rolledAffectedPlayer.label]);
             }
-            if (picked.affectedPlayer) {
-                const rolledAffectedPlayer = pickWeighted(picked.affectedPlayer);
-                description = description.replace('<affectedPlayer>', rolledAffectedPlayer.label);
+            if (picked.possiblePlayerPositions) {
+                const rolledPlayerPosition = pickWeighted(picked.possiblePlayerPositions);
+                substitutions.push(['{{playerPosition}}', rolledPlayerPosition.value]);
             }
+
+            const description = picked.description.map((line) => (
+                substitutions.reduce((text, [placeholder, value]) => text.replace(placeholder, value), line)
+            ));
 
             return { item: picked, description };
         }
@@ -696,7 +700,7 @@
                 const equipmentBoxGranted = grantedHelp.some((item) => item.name === 'equipmentCrane');
                 const fateResult = rollCapriciousFate(fateData, { equipmentBoxGranted });
                 if (fateResult) {
-                    sortDescription.textContent = fateResult.description;
+                    renderTextLines(sortDescription, fateResult.description);
                 }
             });
         }, { once: true });

@@ -1,9 +1,15 @@
 [
   {
-    "name": "Peau de fer",
-    "description": "Les zombies de valeur <affectedZombies> sont immunisés contre les armes blanches.",
+    "name": "ironSkin",
+    "label": {
+      "full": "Peau de fer",
+      "short": "Peau de fer"
+    },
+    "description": [
+      "Les zombies de valeur {{affectedZombies.value}} sont immunisés contre les armes blanches."
+    ],
     "spawnChances": "HIGH",
-    "affectedZombies": [
+    "possibleAffectedZombies": [
       {
         "value": "1",
         "spawnChances": "HIGH"
@@ -27,10 +33,16 @@
     ]
   },
   {
-    "name": "Sang explosif",
-    "description": "Les zombies de valeur <affectedZombies> tués par armes à feu explosent et contaminent le joueur suivant.",
+    "name": "explosiveBlood",
+    "label": {
+      "full": "Sang explosif",
+      "short": "Sang explosif"
+    },
+    "description": [
+      "Les zombies de valeur {{affectedZombies.value}} tués par armes à feu explosent et contaminent le joueur suivant."
+    ],
     "spawnChances": "HIGH",
-    "affectedZombies": [
+    "possibleAffectedZombies": [
       {
         "value": "1",
         "spawnChances": "LOW"
@@ -54,89 +66,135 @@
     ]
   },
   {
-    "name": "Odeur de sang",
-    "description": "Au lieu d'attaquer celui qui a pioché, les zombies <affectedZombies> attaquent <affectedPlayer>.",
+    "name": "bloodScent",
+    "label": {
+      "full": "Odeur de sang",
+      "short": "Odeur de sang"
+    },
+    "description": [
+      "Au lieu d'attaquer celui qui a pioché, {{affectedZombies.value}} attaquent {{affectedPlayers.label}}."
+    ],
     "spawnChances": "HIGH",
-    "affectedZombies": [
+    "possibleAffectedZombies": [
       {
-        "value": "de valeur 1",
+        "value": "les zombies de valeur 1",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "les zombies de valeur 3",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "les zombies de valeur 5",
         "spawnChances": "HIGH"
       },
       {
-        "value": "de valeur 3",
-        "spawnChances": "HIGH"
-      },
-      {
-        "value": "de valeur 5",
+        "value": "les zombies de valeur 8",
         "spawnChances": "MEDIUM"
       },
       {
-        "value": "de valeur 8",
+        "value": "les zombies de valeur 13",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "les zombies cachés",
         "spawnChances": "MEDIUM"
       },
       {
-        "value": "de valeur 13",
-        "spawnChances": "LOW"
-      },
-      {
-        "value": "Hidden Zombie",
-        "spawnChances": "LOW"
-      },
-      {
-        "value": "Zombie Boss",
-        "spawnChances": "LOW"
+        "value": "le Boss",
+        "spawnChances": "MEDIUM"
       }
     ],
-    "affectedPlayer": [
-      {"name": "weakestPlayer", "label": "le joueur ayant le moins de cartes", "spawnChances": "HIGH"},
-      {"name": "strongestPlayer", "label": "le joueur ayant le plus de cartes", "spawnChances": "HIGH"},
-      {"name": "leader", "label": "le chef de groupe", "spawnChances": "LOW"},
-      {"name": "lastPlayer", "label": "le dernier joueur", "spawnChances": "VERY_HIGH"}
+    "possibleAffectedPlayers": [
+      {
+        "name": "weakestPlayer",
+        "label": "le joueur ayant le moins de cartes",
+        "spawnChances": "HIGH"
+      },
+      {
+        "name": "strongestPlayer",
+        "label": "le joueur ayant le plus de cartes",
+        "spawnChances": "HIGH"
+      },
+      {
+        "name": "leader",
+        "label": "le chef de groupe",
+        "spawnChances": "LOW"
+      },
+      {
+        "name": "lastPlayer",
+        "label": "le dernier joueur",
+        "spawnChances": "VERY_HIGH"
+      }
     ]
   },
   {
-    "name": "Silence radio",
-    "description": "Les joueurs ne peuvent plus communiquer verbalement pendant la durée du chapitre.",
-    "spawnChances": "HIGH",
+    "name": "radioSilence",
+    "label": {
+      "full": "Silence radio",
+      "short": "Silence radio"
+    },
+    "description": [
+      "Les joueurs ne peuvent plus communiquer verbalement pendant la durée du chapitre."
+    ],
+    "spawnChances": "MEDIUM",
     "conditions": [
       "At least one player is a zombie"
     ]
   },
   {
-    "name": "Terrain glissant",
-    "description": "Les cartes piochées par pénalité sont remises dans la pioche.",
+    "name": "slipperyGround",
+    "label": {
+      "full": "Terrain glissant",
+      "short": "Terrain gliss"
+    },
+    "description": [
+      "Les cartes piochées par pénalité sont remises dans la pioche."
+    ],
     "spawnChances": "LOW"
   },
   {
-    "name": "Rationnement",
-    "description": "Le joueur #<positionJoueur> du groupe ne peut pas piocher de cartes survivant durant ce chapitre.",
-    "player": [
+    "name": "rationing",
+    "label": {
+      "full": "Rationnement",
+      "short": "Rationnement"
+    },
+    "description": [
+      "Le joueur #{{playerPosition}} du groupe ne peut pas piocher de cartes survivant durant ce chapitre."
+    ],
+    "spawnChances": "MEDIUM",
+    "possiblePlayerPositions": [
       {
-        "player": 1,
+        "value": 1,
         "spawnChances": "LOW"
       },
       {
-        "player": -1,
+        "value": -1,
         "spawnChances": "LOW"
       },
       {
-        "player": 2,
+        "value": 2,
         "spawnChances": "MEDIUM"
       },
       {
-        "player": 3,
+        "value": 3,
         "spawnChances": "MEDIUM"
       },
       {
-        "player": 4,
+        "value": 4,
         "spawnChances": "MEDIUM"
       }
-    ],
-    "spawnChances": "MEDIUM"
+    ]
   },
   {
-    "name": "Ravitaillement corrompu",
-    "description": "Une des caisses d'équipement contient un zombie caché au lieu d'un équipement.",
+    "name": "corruptedSupplies",
+    "label": {
+      "full": "Ravitaillement corrompu",
+      "short": "Ravit corr."
+    },
+    "description": [
+      "Une des caisses d'équipement contient un zombie caché au lieu d'un équipement."
+    ],
     "spawnChances": "MEDIUM",
     "conditions": [
       "At least one equipment box has been distributed"
