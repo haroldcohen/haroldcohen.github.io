@@ -20,25 +20,25 @@
             display: none !important;
         }
 
-        html, body {
-            height: 100%;
-        }
-
         body {
             background-color: #000000;
-            height: 100vh;
-            height: 100dvh;
+            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
-            align-items: stretch;
+            align-items: center;
             padding: 20px;
         }
 
         .frame {
             width: min(95vw, 1100px);
+            height: min(85vh, 800px);
+            height: min(85dvh, 800px);
             background-color: #000000;
             border: 8.5px solid #FFCC00;
             display: flex;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .sidebar {
