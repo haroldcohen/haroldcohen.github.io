@@ -283,17 +283,25 @@
 
     <script>
         // 100dvh doesn't reliably match the actually-visible viewport on iOS Safari at
-        // paint time, so the frame's fixed height is set from window.innerHeight instead
-        // (which iOS keeps accurate and fires 'resize' on toolbar show/hide).
+        // paint time, so the frame's fixed height is set from the real viewport instead.
+        // On rotation, iOS reports innerHeight/visualViewport.height before its chrome
+        // (toolbar/tab strip) finishes resizing, so a single read right after
+        // 'orientationchange' is often stale — re-measure a few times as it settles.
         const frameEl = document.querySelector('.frame');
 
         function setFrameHeight() {
-            frameEl.style.height = (window.innerHeight - 40) + 'px';
+            const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            frameEl.style.height = (viewportHeight - 40) + 'px';
         }
 
         setFrameHeight();
         window.addEventListener('resize', setFrameHeight);
-        window.addEventListener('orientationchange', setFrameHeight);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', setFrameHeight);
+        }
+        window.addEventListener('orientationchange', () => {
+            [0, 100, 300, 600, 1000].forEach((delay) => setTimeout(setFrameHeight, delay));
+        });
 
         document.querySelectorAll('.stepper').forEach((stepper) => {
             const min = parseInt(stepper.dataset.min, 10);
