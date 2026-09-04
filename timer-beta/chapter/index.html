@@ -361,6 +361,19 @@
     </div>
 
     <script>
+        // 100dvh doesn't reliably match the actually-visible viewport on iOS Safari at
+        // paint time, so the frame's fixed height is set from window.innerHeight instead
+        // (which iOS keeps accurate and fires 'resize' on toolbar show/hide).
+        const frameEl = document.querySelector('.frame');
+
+        function setFrameHeight() {
+            frameEl.style.height = (window.innerHeight - 40) + 'px';
+        }
+
+        setFrameHeight();
+        window.addEventListener('resize', setFrameHeight);
+        window.addEventListener('orientationchange', setFrameHeight);
+
         const DIFFICULTY_MINUTES = {
             facile: 20,
             normal: 15,
