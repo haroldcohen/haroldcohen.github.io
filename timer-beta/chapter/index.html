@@ -313,7 +313,7 @@
             <div class="chapter-banner"><span class="chapter-banner-text">Chapitre #1</span></div>
             <div id="sidebarDiceView" class="sidebar-body">
                 <div class="dice-of-fortune">
-                    <dotlottie-wc id="diceAnim" src="../../assets/game/dice-of-fortune.json"></dotlottie-wc>
+                    <dotlottie-wc id="diceAnim"></dotlottie-wc>
                 </div>
                 <div id="diceInstructions" class="dice-instructions">Lancer les dés de la fortune pour commencer.</div>
             </div>
@@ -368,6 +368,22 @@
     </div>
 
     <script>
+        // .frame (and the dice animation inside it) is display:none in portrait. If the
+        // dotlottie-wc component gets its src while hidden, it measures a zero-size
+        // container and renders distorted afterwards even once rotated to landscape and
+        // shown. So only give it a src once the page is actually in landscape.
+        const diceAnimEl = document.getElementById('diceAnim');
+        const landscapeQuery = window.matchMedia('(orientation: landscape)');
+
+        function loadDiceAnimWhenLandscape() {
+            if (landscapeQuery.matches && !diceAnimEl.getAttribute('src')) {
+                diceAnimEl.setAttribute('src', '../../assets/game/dice-of-fortune.json');
+            }
+        }
+
+        loadDiceAnimWhenLandscape();
+        landscapeQuery.addEventListener('change', loadDiceAnimWhenLandscape);
+
         const DIFFICULTY_MINUTES = {
             facile: 20,
             normal: 15,
