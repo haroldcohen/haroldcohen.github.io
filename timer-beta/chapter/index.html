@@ -16,6 +16,12 @@
             box-sizing: border-box;
         }
 
+        html {
+            /* Stops accidental double-tap-to-zoom on quick successive taps; pinch-zoom
+               still works. */
+            touch-action: manipulation;
+        }
+
         [hidden] {
             display: none !important;
         }
