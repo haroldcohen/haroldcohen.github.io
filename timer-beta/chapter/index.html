@@ -32,13 +32,11 @@
 
         .frame {
             width: min(95vw, 1100px);
-            height: min(85vh, 800px);
-            height: min(85dvh, 800px);
+            min-height: calc(100vh - 40px);
+            min-height: calc(100dvh - 40px);
             background-color: #000000;
             border: 8.5px solid #FFCC00;
             display: flex;
-            overflow-y: auto;
-            overflow-x: hidden;
         }
 
         .sidebar {
