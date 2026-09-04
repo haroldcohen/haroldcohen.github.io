@@ -1,0 +1,100 @@
+[
+  {
+    "name": "Caisse equipement",
+    "description": "Contient de l'equipement. Le contenu est dévoilé au moment de l'ouverture.",
+    "maxSpawnPerChapter": 2,
+    "spawnChances": "HIGH",
+    "possibleContent": [
+      {
+        "name": "shotgun",
+        "spawnChances": "HIGH",
+        "maxSpawnPerChapter": 2,
+        "possibleAmmo": [
+          {
+            "ammo": 1,
+            "spawnChances": "HIGH"
+          },
+          {
+            "ammo": 3,
+            "spawnChances": "HIGH"
+          },
+          {
+            "ammo": 5,
+            "spawnChances": "MEDIUM"
+          },
+          {
+            "ammo": 8,
+            "spawnChances": "MEDIUM"
+          }
+        ],
+        "contentDisplay": "Shotgun (n ammo). Boom Shakalata motherfuckers !"
+      },
+      {
+        "name": "AK-47",
+        "spawnChances": "HIGH",
+        "maxSpawnPerChapter": 2,
+        "possibleAmmo": [
+          {
+            "ammo": 5,
+            "spawnChances": "HIGH"
+          },
+          {
+            "ammo": 8,
+            "spawnChances": "HIGH"
+          },
+          {
+            "ammo": 13,
+            "spawnChances": "MEDIUM"
+          }
+        ],
+        "contentDisplay": "AK-47 (n ammo). Fait presque autant de degats à l'estomac que la Vodka."
+      },
+      {
+        "name": "Armor",
+        "spawnChances": "MEDIUM",
+        "maxSpawnPerChapter": 1,
+        "contentDisplay": "Armor. Vu le temps, mieux vaut sortir couvert."
+      },
+      {
+        "name": "Machete",
+        "spawnChances": "MEDIUM",
+        "maxSpawnPerChapter": 1,
+        "contentDisplay": "Machete. Un couteau suisse, mais en plus nerveux."
+      },
+      {
+        "name": "Cure",
+        "spawnChances": "LOW",
+        "maxSpawnPerChapter": 1,
+        "contentDisplay": "Cure. Permet de soigner un joueur. Vous avez pas peur des aiguilles au moins ?"
+      }
+    ]
+  },
+  {
+    "name": "Feu de camp",
+    "description": "Permet à un joueur de passer son tour.",
+    "maxSpawnPerChapter": 1,
+    "spawnChances": "HIGH",
+    "contentDisplay": "Des shamallows grillés au feu de bois pendant l'apocalypse. What else ?"
+  },
+  {
+    "name": "Eclaireur",
+    "description": "Permet de dévoiler les 3 cartes du dessus de la pioche Horde.",
+    "maxSpawnPerChapter": 1,
+    "spawnChances": "MEDIUM",
+    "contentDisplay": "3 cartes hein, pas 4."
+  },
+  {
+    "name": "Barricade improvisée",
+    "description": "Pendant 2 tours, réduit à 5 le nombre de zombies pouvant attaquer un joueur.",
+    "maxSpawnPerChapter": 1,
+    "spawnChances": "MEDIUM",
+    "contentDisplay": "Comme quoi les palettes ça sert ailleurs qu'au potager."
+  },
+  {
+    "name": "Pièce de rechange",
+    "description": "Permet de réutiliser une carte spéciale défaussée pendant le chapitre.",
+    "maxSpawnPerChapter": 1,
+    "spawnChances": "LOW",
+    "contentDisplay": "Comme quoi les palettes ça sert ailleurs qu'au potager."
+  }
+]

@@ -1,0 +1,139 @@
+[
+  {
+    "name": "Peau de fer",
+    "description": "Les zombies de valeur <affectedZombies> sont immunisés contre les armes blanches.",
+    "spawnChances": "HIGH",
+    "affectedZombies": [
+      {
+        "value": "1",
+        "spawnChances": "HIGH"
+      },
+      {
+        "value": "3",
+        "spawnChances": "HIGH"
+      },
+      {
+        "value": "5",
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "value": "8",
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "value": "13",
+        "spawnChances": "LOW"
+      }
+    ]
+  },
+  {
+    "name": "Sang explosif",
+    "description": "Les zombies de valeur <affectedZombies> tués par armes à feu explosent et contaminent le joueur suivant.",
+    "spawnChances": "HIGH",
+    "affectedZombies": [
+      {
+        "value": "1",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "3",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "5",
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "value": "8",
+        "spawnChances": "HIGH"
+      },
+      {
+        "value": "13",
+        "spawnChances": "HIGH"
+      }
+    ]
+  },
+  {
+    "name": "Odeur de sang",
+    "description": "Au lieu d'attaquer celui qui a pioché, les zombies <affectedZombies> attaquent le joueur ayant le moins de cartes.",
+    "spawnChances": "HIGH",
+    "affectedZombies": [
+      {
+        "value": "de valeur 1",
+        "spawnChances": "HIGH"
+      },
+      {
+        "value": "de valeur 3",
+        "spawnChances": "HIGH"
+      },
+      {
+        "value": "de valeur 5",
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "value": "de valeur 8",
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "value": "de valeur 13",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "Hidden Zombie",
+        "spawnChances": "LOW"
+      },
+      {
+        "value": "Zombie Boss",
+        "spawnChances": "LOW"
+      }
+    ]
+  },
+  {
+    "name": "Silence radio",
+    "description": "Les joueurs ne peuvent plus communiquer verbalement pendant la durée du chapitre.",
+    "spawnChances": "HIGH",
+    "conditions": [
+      "At least one player is a zombie"
+    ]
+  },
+  {
+    "name": "Terrain glissant",
+    "description": "Les cartes piochées par pénalité sont remises dans la pioche.",
+    "spawnChances": "LOW"
+  },
+  {
+    "name": "Rationnement",
+    "description": "Le joueur #<positionJoueur> du groupe ne peut pas piocher de cartes survivant durant ce chapitre.",
+    "player": [
+      {
+        "player": 1,
+        "spawnChances": "LOW"
+      },
+      {
+        "player": -1,
+        "spawnChances": "LOW"
+      },
+      {
+        "player": 2,
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "player": 3,
+        "spawnChances": "MEDIUM"
+      },
+      {
+        "player": 4,
+        "spawnChances": "MEDIUM"
+      }
+    ],
+    "spawnChances": "MEDIUM"
+  },
+  {
+    "name": "Ravitaillement corrompu",
+    "description": "Une des caisses d'équipement contient un zombie caché au lieu d'un équipement.",
+    "spawnChances": "MEDIUM",
+    "conditions": [
+      "At least one equipment box has been distributed"
+    ]
+  }
+]

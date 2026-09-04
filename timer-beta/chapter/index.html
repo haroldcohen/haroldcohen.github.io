@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/graphics/favicon.svg">
+    <title>Dead End - Chapitre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-wc@0.9.28/dist/dotlottie-wc.js"></script>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 20px;
+        }
+
+        .frame {
+            width: min(95vw, 1100px);
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+            display: flex;
+        }
+
+        .sidebar {
+            flex: 0 0 clamp(180px, 26%, 260px);
+            border-right: 8.5px solid #FFCC00;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chapter-banner {
+            background-color: #FFCC00;
+            color: #000000;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .chapter-banner-text {
+            display: inline-block;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 2rem;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .sidebar-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(12px, 3vw, 20px);
+            padding: clamp(16px, 3vw, 24px);
+            text-align: center;
+        }
+
+        .dice-of-fortune dotlottie-wc {
+            width: clamp(70px, 14vw, 120px);
+            aspect-ratio: 1 / 1;
+            display: block;
+            cursor: pointer;
+        }
+
+        .sidebar-help-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(10px, 2vw, 16px);
+            padding: clamp(16px, 3vw, 24px);
+        }
+
+        .sidebar-help-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1rem, 2.2vw, 1.3rem);
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            border-bottom: 1px;
+            border-bottom-color: white;
+            border-bottom-style: ridge;
+            padding-bottom: 0.2em;
+        }
+
+        .sidebar-help-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 1.5vw, 12px);
+        }
+
+        .sidebar-help-item {
+            background-color: #000000;
+            color: #FFCC00;
+            border: 2px solid #FFCC00;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.85rem, 2vw, 1.05rem);
+            padding: clamp(8px, 1.5vw, 12px);
+            cursor: pointer;
+            letter-spacing: -0.03em;
+        }
+
+        .sidebar-help-item:hover {
+            background-color: #FFCC00;
+            color: #000000;
+        }
+
+        .dice-instructions {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            color: #FFFFFF;
+            line-height: 1.4;
+            letter-spacing: -0.03em;
+        }
+
+        .timer-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        #timerView {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .timer-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(16px, 4vw, 48px) clamp(12px, 2vw, 24px);
+        }
+
+        .timer-display {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(3rem, 13vw, 10rem);
+            color: #FFCC00;
+            line-height: 1;
+            white-space: nowrap;
+            letter-spacing: -0.05em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 clamp(12px, 2vw, 24px) clamp(12px, 2vw, 16px);
+            gap: clamp(8px, 1.5vw, 16px);
+        }
+
+        .controls-left {
+            display: flex;
+            gap: clamp(8px, 1.5vw, 16px);
+        }
+
+        button {
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            border-radius: 0;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            padding: clamp(7px, 1.2vw, 13px) clamp(12px, 2vw, 28px);
+            cursor: pointer;
+            letter-spacing: -0.03em;
+        }
+
+        button:disabled {
+            color: #B0B0B0;
+            border-color: #B0B0B0;
+            cursor: default;
+        }
+
+        .end-chapter-row {
+            padding: 0 clamp(12px, 2vw, 24px) clamp(14px, 2.5vw, 24px);
+        }
+
+        .end-chapter-btn {
+            width: 100%;
+        }
+
+        .item-detail-actions {
+            display: flex;
+            gap: clamp(8px, 1.5vw, 16px);
+        }
+
+        .item-detail-use-btn {
+            flex: 1;
+        }
+
+        .item-detail-close-btn {
+            flex: 0 0 auto;
+        }
+
+        .item-detail-close-btn.full-width {
+            flex: 1;
+        }
+
+        .dice-result-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: clamp(14px, 2.5vw, 24px) clamp(12px, 2vw, 24px);
+        }
+
+        .dice-result-content {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.8rem, 1.8vw, 1.15rem);
+        }
+
+        .dice-result-heading {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(2.6rem, 7vw, 4.5rem);
+            color: #FFCC00;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .dice-result-list {
+            list-style: none;
+            margin-top: 0;
+        }
+
+        .dice-result-list li {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+
+        .sort-description {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+
+        .portrait-overlay {
+            display: none;
+        }
+
+        @media (orientation: portrait) {
+            .frame {
+                display: none;
+            }
+            .portrait-overlay {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100vw;
+                height: 100vh;
+                font-family: 'Oswald', sans-serif;
+                font-weight: 700;
+                font-size: clamp(1.5rem, 8vw, 3rem);
+                text-transform: uppercase;
+                color: #FFFFFF;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="portrait-overlay">Tournez votre écran</div>
+    <div class="frame">
+        <div class="sidebar">
+            <div class="chapter-banner"><span class="chapter-banner-text">Chapitre #1</span></div>
+            <div id="sidebarDiceView" class="sidebar-body">
+                <div class="dice-of-fortune">
+                    <dotlottie-wc id="diceAnim" src="../../assets/game/dice-of-fortune.json"></dotlottie-wc>
+                </div>
+                <div id="diceInstructions" class="dice-instructions">Lancer les dés de la fortune pour commencer.</div>
+            </div>
+            <div id="sidebarHelpView" class="sidebar-help-view" hidden>
+                <div class="sidebar-help-title">Aide</div>
+                <div id="sidebarHelpList" class="sidebar-help-list"></div>
+            </div>
+        </div>
+        <div class="timer-panel">
+            <div id="timerView">
+                <div class="timer-area">
+                    <div class="timer-display">
+                        <span id="minutes">20</span>:<span id="seconds">00</span>:<span id="centis">00</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <div class="controls-left">
+                        <button id="startBtn" disabled>Commencer</button>
+                        <button id="resetBtn" disabled>Reset</button>
+                    </div>
+                    <button id="penaltyBtn" disabled>Penalite</button>
+                </div>
+                <div class="end-chapter-row">
+                    <button id="endChapterBtn" class="end-chapter-btn" disabled>Terminer chapitre</button>
+                </div>
+            </div>
+            <div id="diceResultView" class="dice-result-view" hidden>
+                <div class="dice-result-content">
+                    <div class="dice-result-heading">Aide obtenue :</div>
+                    <ul id="diceResultList" class="dice-result-list"></ul>
+                </div>
+                <button id="nextBtn" class="end-chapter-btn">Suivant</button>
+            </div>
+            <div id="sortView" class="dice-result-view" hidden>
+                <div class="dice-result-content">
+                    <div class="dice-result-heading">Caprice du sort :</div>
+                    <p id="sortDescription" class="sort-description"></p>
+                </div>
+                <button id="okBtn" class="end-chapter-btn">Ok</button>
+            </div>
+            <div id="itemDetailView" class="dice-result-view" hidden>
+                <div class="dice-result-content">
+                    <div id="itemDetailHeading" class="dice-result-heading"></div>
+                    <p id="itemDetailDescription" class="sort-description"></p>
+                </div>
+                <div class="item-detail-actions">
+                    <button id="itemDetailUseBtn" type="button" class="item-detail-use-btn"></button>
+                    <button id="itemDetailCloseBtn" type="button" class="item-detail-close-btn">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DIFFICULTY_MINUTES = {
+            facile: 20,
+            normal: 15,
+            difficile: 10,
+        };
+
+        const difficultyParam = new URLSearchParams(window.location.search).get('difficulty');
+        const chapterMinutes = DIFFICULTY_MINUTES[difficultyParam] ?? DIFFICULTY_MINUTES.normal;
+
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const centisEl = document.getElementById('centis');
+
+        const TOTAL_TIME = chapterMinutes * 60 * 100;
+        let timeRemaining = TOTAL_TIME;
+        let isRunning = false;
+        let tickInterval = null;
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeRemaining / 6000);
+            const s = Math.floor((timeRemaining % 6000) / 100);
+            const c = timeRemaining % 100;
+            minutesEl.textContent = String(m).padStart(2, '0');
+            secondsEl.textContent = String(s).padStart(2, '0');
+            centisEl.textContent = String(c).padStart(2, '0');
+        }
+
+        function tick() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                updateTimerDisplay();
+            } else {
+                clearInterval(tickInterval);
+                tickInterval = null;
+                isRunning = false;
+            }
+        }
+
+        updateTimerDisplay();
+
+        function fitChapterBanner() {
+            const banner = document.querySelector('.chapter-banner');
+            const text = document.querySelector('.chapter-banner-text');
+            const style = getComputedStyle(banner);
+            const available = banner.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+
+            const baseSize = 16;
+            text.style.fontSize = baseSize + 'px';
+            const naturalWidth = text.scrollWidth;
+
+            text.style.fontSize = (available / naturalWidth) * baseSize + 'px';
+        }
+
+        fitChapterBanner();
+        window.addEventListener('resize', fitChapterBanner);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitChapterBanner);
+        }
+
+        const diceAnim = document.getElementById('diceAnim');
+        const diceInstructions = document.getElementById('diceInstructions');
+        const timerView = document.getElementById('timerView');
+        const diceResultView = document.getElementById('diceResultView');
+        const diceResultList = document.getElementById('diceResultList');
+        const sidebarDiceView = document.getElementById('sidebarDiceView');
+        const sidebarHelpView = document.getElementById('sidebarHelpView');
+        const sidebarHelpList = document.getElementById('sidebarHelpList');
+        const sortView = document.getElementById('sortView');
+        const sortDescription = document.getElementById('sortDescription');
+        const itemDetailView = document.getElementById('itemDetailView');
+        const itemDetailHeading = document.getElementById('itemDetailHeading');
+        const itemDetailDescription = document.getElementById('itemDetailDescription');
+        const itemDetailUseBtn = document.getElementById('itemDetailUseBtn');
+        const itemDetailCloseBtn = document.getElementById('itemDetailCloseBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const okBtn = document.getElementById('okBtn');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const penaltyBtn = document.getElementById('penaltyBtn');
+        const endChapterBtn = document.getElementById('endChapterBtn');
+
+        const SPAWN_CHANCE_WEIGHTS = { HIGH: 60, MEDIUM: 30, LOW: 10 };
+        const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
+        const fateDataPromise = fetch('../../data/dice-of-fortune_capricious-fate.json').then((res) => res.json());
+
+        // Chapter #1 always starts with no infected players; a future "start next chapter"
+        // step will let players report the infected count so this can turn true from chapter 2 on.
+        const infectedPlayersCount = 0;
+
+        const CONDITION_CHECKS = {
+            'At least one player is a zombie': () => infectedPlayersCount > 0,
+            'At least one equipment box has been distributed': (ctx) => ctx.equipmentBoxGranted,
+        };
+
+        function pickWeighted(pool) {
+            const total = pool.reduce((sum, item) => sum + (SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0), 0);
+            if (total <= 0) return null;
+            let roll = Math.random() * total;
+            for (const item of pool) {
+                roll -= SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0;
+                if (roll <= 0) return item;
+            }
+            return pool[pool.length - 1];
+        }
+
+        function rollHelpItems(helpData) {
+            const spawnCounts = new Map(helpData.map((item) => [item.name, 0]));
+            const itemCount = 1 + Math.floor(Math.random() * 3);
+            const granted = [];
+
+            for (let i = 0; i < itemCount; i++) {
+                const pool = helpData.filter((item) => spawnCounts.get(item.name) < item.maxSpawnPerChapter);
+                const picked = pickWeighted(pool);
+                if (!picked) break;
+                spawnCounts.set(picked.name, spawnCounts.get(picked.name) + 1);
+                granted.push(picked);
+            }
+            return granted;
+        }
+
+        function aggregateHelpItems(items) {
+            const order = [];
+            const counts = new Map();
+            for (const item of items) {
+                if (!counts.has(item.name)) {
+                    order.push(item);
+                    counts.set(item.name, 0);
+                }
+                counts.set(item.name, counts.get(item.name) + 1);
+            }
+            return order.map((item) => ({ item, count: counts.get(item.name) }));
+        }
+
+        function conditionsMet(item, ctx) {
+            if (!item.conditions) return true;
+            return item.conditions.every((condition) => {
+                const check = CONDITION_CHECKS[condition];
+                return check ? check(ctx) : false;
+            });
+        }
+
+        function rollCapriciousFate(fateData, ctx) {
+            const pool = fateData.filter((item) => conditionsMet(item, ctx));
+            const picked = pickWeighted(pool);
+            if (!picked) return null;
+
+            let description = picked.description;
+            if (picked.affectedZombies) {
+                const rolledZombie = pickWeighted(picked.affectedZombies);
+                description = description.replace('<affectedZombies>', rolledZombie.value);
+            }
+            if (picked.player) {
+                const rolledPlayer = pickWeighted(picked.player);
+                description = description.replace('<positionJoueur>', rolledPlayer.player);
+            }
+
+            return { item: picked, description };
+        }
+
+        function renderDiceResultList(aggregated) {
+            diceResultList.innerHTML = '';
+            aggregated.forEach(({ item, count }) => {
+                const li = document.createElement('li');
+                li.textContent = count > 1 ? `${item.name} x${count}` : item.name;
+                li.title = item.description;
+                diceResultList.appendChild(li);
+            });
+        }
+
+        function isCrate(item) {
+            return !!item.possibleContent;
+        }
+
+        function useVerb(item) {
+            return isCrate(item) ? 'Ouvrir' : 'Utiliser';
+        }
+
+        function pluralize(count, singular, plural) {
+            return count > 1 ? plural : singular;
+        }
+
+        let currentDetailEntry = null;
+        let capriciousFateAcknowledged = false;
+        let chapterStarted = false;
+        let lastAggregatedHelp = null;
+
+        function showItemDetail(entry) {
+            if (!capriciousFateAcknowledged) return;
+
+            currentDetailEntry = entry;
+            itemDetailHeading.textContent = `${entry.item.name} :`;
+            itemDetailDescription.textContent = entry.item.description;
+            itemDetailUseBtn.textContent = `${useVerb(entry.item)} (${entry.remaining} ${pluralize(entry.remaining, 'restante', 'restantes')})`;
+            itemDetailUseBtn.disabled = !chapterStarted;
+            itemDetailUseBtn.hidden = false;
+            itemDetailCloseBtn.classList.remove('full-width');
+            timerView.hidden = true;
+            itemDetailView.hidden = false;
+        }
+
+        function closeItemDetail() {
+            currentDetailEntry = null;
+            itemDetailView.hidden = true;
+            timerView.hidden = false;
+        }
+
+        function renderSidebarHelpList(aggregated) {
+            sidebarHelpList.innerHTML = '';
+
+            aggregated.forEach(({ item, count }) => {
+                const entry = { item, remaining: count };
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'sidebar-help-item';
+                btn.textContent = item.name;
+                btn.title = item.description;
+                btn.addEventListener('click', () => showItemDetail(entry));
+
+                entry.buttonEl = btn;
+                sidebarHelpList.appendChild(btn);
+            });
+        }
+
+        function openCrate(entry) {
+            const rolledContent = pickWeighted(entry.item.possibleContent);
+            let displayText = rolledContent.contentDisplay;
+
+            if (rolledContent.possibleAmmo) {
+                const rolledAmmo = pickWeighted(rolledContent.possibleAmmo);
+                displayText = displayText.replace(/\bn\b/, rolledAmmo.ammo);
+            }
+
+            entry.remaining -= 1;
+            if (entry.remaining <= 0) {
+                entry.buttonEl.remove();
+            }
+
+            itemDetailDescription.textContent = displayText;
+            itemDetailUseBtn.hidden = true;
+            itemDetailCloseBtn.classList.add('full-width');
+        }
+
+        itemDetailUseBtn.addEventListener('click', () => {
+            if (!currentDetailEntry) return;
+
+            if (isCrate(currentDetailEntry.item)) {
+                openCrate(currentDetailEntry);
+                return;
+            }
+
+            currentDetailEntry.remaining -= 1;
+
+            if (currentDetailEntry.remaining <= 0) {
+                currentDetailEntry.buttonEl.remove();
+                closeItemDetail();
+            } else {
+                itemDetailUseBtn.textContent = `${useVerb(currentDetailEntry.item)} (${currentDetailEntry.remaining} ${pluralize(currentDetailEntry.remaining, 'restante', 'restantes')})`;
+            }
+        });
+
+        itemDetailCloseBtn.addEventListener('click', closeItemDetail);
+
+        diceAnim.addEventListener('click', () => {
+            diceAnim.dotLottie?.play();
+            diceAnim.style.pointerEvents = 'none';
+            diceAnim.style.cursor = 'default';
+            diceInstructions.hidden = true;
+            timerView.hidden = true;
+            diceResultView.hidden = false;
+
+            Promise.all([helpDataPromise, fateDataPromise]).then(([helpData, fateData]) => {
+                const grantedHelp = rollHelpItems(helpData);
+                const aggregatedHelp = aggregateHelpItems(grantedHelp);
+                lastAggregatedHelp = aggregatedHelp;
+                renderDiceResultList(aggregatedHelp);
+                renderSidebarHelpList(aggregatedHelp);
+
+                const equipmentBoxGranted = grantedHelp.some((item) => item.name === 'Caisse equipement');
+                const fateResult = rollCapriciousFate(fateData, { equipmentBoxGranted });
+                if (fateResult) {
+                    sortDescription.textContent = fateResult.description;
+                }
+            });
+        }, { once: true });
+
+        nextBtn.addEventListener('click', () => {
+            sidebarDiceView.hidden = true;
+            sidebarHelpView.hidden = false;
+            diceResultView.hidden = true;
+            sortView.hidden = false;
+        }, { once: true });
+
+        okBtn.addEventListener('click', () => {
+            capriciousFateAcknowledged = true;
+            sortView.hidden = true;
+            timerView.hidden = false;
+            startBtn.disabled = false;
+            resetBtn.disabled = false;
+            penaltyBtn.disabled = false;
+            endChapterBtn.disabled = false;
+        }, { once: true });
+
+        startBtn.addEventListener('click', () => {
+            chapterStarted = true;
+
+            if (!isRunning) {
+                isRunning = true;
+                tickInterval = setInterval(tick, 10);
+                startBtn.textContent = 'Pause';
+            } else {
+                isRunning = false;
+                clearInterval(tickInterval);
+                tickInterval = null;
+                startBtn.textContent = 'Reprendre';
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            isRunning = false;
+            clearInterval(tickInterval);
+            tickInterval = null;
+            timeRemaining = TOTAL_TIME;
+            updateTimerDisplay();
+            startBtn.textContent = 'Commencer';
+
+            if (lastAggregatedHelp) {
+                renderSidebarHelpList(lastAggregatedHelp);
+            }
+        });
+    </script>
+</body>
+</html>

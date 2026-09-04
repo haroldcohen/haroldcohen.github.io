@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/graphics/favicon.svg">
+    <title>Dead End - Nouvelle Partie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .frame {
+            flex: 1;
+            max-width: 460px;
+            background-color: #000000;
+            border: 8.5px solid #FFCC00;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-banner {
+            background-color: #FFCC00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(10px, 2vw, 18px) 0 calc(clamp(10px, 2vw, 18px) + 8.5px);
+            flex-shrink: 0;
+        }
+
+        .title-banner a {
+            display: contents;
+        }
+
+        .title-banner img {
+            width: 60%;
+            height: auto;
+            display: block;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(16px, 4vw, 24px);
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(18px, 4vw, 26px);
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            color: #FFCC00;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .setting {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .setting-label {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 2.3vw, 1rem);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stepper {
+            display: flex;
+            align-items: stretch;
+            border: 3px solid #FFFFFF;
+        }
+
+        .stepper button {
+            background-color: #000000;
+            color: #FFFFFF;
+            border: none;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            width: clamp(44px, 12vw, 56px);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .stepper button:hover:not(:disabled) {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+
+        .stepper button:disabled {
+            color: #4A4A4A;
+            cursor: default;
+        }
+
+        .stepper-value {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Roboto Mono', 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            color: #FFCC00;
+            border-left: 3px solid #FFFFFF;
+            border-right: 3px solid #FFFFFF;
+        }
+
+        .choice-group {
+            display: flex;
+            gap: clamp(6px, 2vw, 10px);
+        }
+
+        .choice-btn {
+            flex: 1;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.75rem, 2.3vw, 0.95rem);
+            padding: clamp(8px, 2vw, 12px) 4px;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+        }
+
+        .choice-btn:hover {
+            background-color: #333333;
+        }
+
+        .choice-btn.selected {
+            background-color: #FFCC00;
+            border-color: #FFCC00;
+            color: #000000;
+        }
+
+        .start-section {
+            padding: clamp(16px, 4vw, 24px);
+            flex-shrink: 0;
+        }
+
+        .start-btn {
+            display: block;
+            width: 100%;
+            background-color: #FFCC00;
+            color: #000000;
+            border: 3px solid #FFCC00;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1rem, 2.8vw, 1.25rem);
+            padding: clamp(12px, 2.5vw, 16px) 10px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .start-btn:hover {
+            background-color: #000000;
+            color: #FFCC00;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            padding: 0 clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);
+        }
+
+        .separator {
+            border: none;
+            border-top: 1px solid #FFFFFF;
+            margin-bottom: clamp(12px, 3vw, 20px);
+            opacity: 0.4;
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: 3px solid #FFFFFF;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            padding: clamp(10px, 2vw, 14px) 10px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .nav-btn.home-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn.home-btn img {
+            width: clamp(18px, 4vw, 24px);
+            height: auto;
+        }
+
+        .nav-btn.home-btn:hover {
+            background-color: #FFFFFF;
+        }
+
+        .nav-btn.home-btn:hover img {
+            filter: brightness(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="title-banner">
+            <a href="/"><img src="../assets/graphics/logo-deadend_black.svg" alt="Dead End"></a>
+        </div>
+        <div class="content">
+            <div class="section-title">Nouvelle Partie</div>
+
+            <div class="setting">
+                <div class="setting-label">Nombre de joueurs</div>
+                <div class="stepper" data-min="3" data-max="5" data-value="4">
+                    <button type="button" class="stepper-minus" aria-label="Diminuer">&minus;</button>
+                    <div class="stepper-value">4</div>
+                    <button type="button" class="stepper-plus" aria-label="Augmenter">+</button>
+                </div>
+            </div>
+
+            <div class="setting">
+                <div class="setting-label">Nombre de chapitres</div>
+                <div class="stepper" data-min="1" data-max="4" data-value="4">
+                    <button type="button" class="stepper-minus" aria-label="Diminuer">&minus;</button>
+                    <div class="stepper-value">4</div>
+                    <button type="button" class="stepper-plus" aria-label="Augmenter">+</button>
+                </div>
+            </div>
+
+            <div class="setting">
+                <div class="setting-label">Difficulté</div>
+                <div class="choice-group" id="difficultyGroup">
+                    <button type="button" class="choice-btn" data-value="facile">Facile</button>
+                    <button type="button" class="choice-btn selected" data-value="normal">Normal</button>
+                    <button type="button" class="choice-btn" data-value="difficile">Difficile</button>
+                </div>
+            </div>
+        </div>
+        <div class="start-section">
+            <a href="chapter/" class="start-btn" id="startGameBtn">Démarrer la partie</a>
+        </div>
+        <div class="footer">
+            <hr class="separator">
+            <a href="/" class="nav-btn home-btn"><img src="../assets/graphics/nav-icons/home.svg" alt="Accueil"></a>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.stepper').forEach((stepper) => {
+            const min = parseInt(stepper.dataset.min, 10);
+            const max = parseInt(stepper.dataset.max, 10);
+            const valueEl = stepper.querySelector('.stepper-value');
+            const minusBtn = stepper.querySelector('.stepper-minus');
+            const plusBtn = stepper.querySelector('.stepper-plus');
+
+            const render = () => {
+                const value = parseInt(stepper.dataset.value, 10);
+                valueEl.textContent = value;
+                minusBtn.disabled = value <= min;
+                plusBtn.disabled = value >= max;
+            };
+
+            minusBtn.addEventListener('click', () => {
+                const value = Math.max(min, parseInt(stepper.dataset.value, 10) - 1);
+                stepper.dataset.value = value;
+                render();
+            });
+
+            plusBtn.addEventListener('click', () => {
+                const value = Math.min(max, parseInt(stepper.dataset.value, 10) + 1);
+                stepper.dataset.value = value;
+                render();
+            });
+
+            render();
+        });
+
+        const startGameBtn = document.getElementById('startGameBtn');
+
+        function updateStartLink() {
+            const selected = document.querySelector('#difficultyGroup .choice-btn.selected');
+            const difficulty = selected ? selected.dataset.value : 'normal';
+            startGameBtn.href = 'chapter/?difficulty=' + difficulty;
+        }
+
+        document.querySelectorAll('.choice-group').forEach((group) => {
+            group.querySelectorAll('.choice-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    group.querySelectorAll('.choice-btn').forEach((b) => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    updateStartLink();
+                });
+            });
+        });
+
+        updateStartLink();
+    </script>
+</body>
+</html>
