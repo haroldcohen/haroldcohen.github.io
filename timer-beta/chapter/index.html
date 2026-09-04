@@ -80,8 +80,11 @@
         }
 
         .dice-of-fortune dotlottie-wc {
-            width: clamp(70px, 14vw, 120px);
-            aspect-ratio: 1 / 1;
+            /* Fixed px, not vw-based: on rotation the vw value changes, and the lottie
+               player's internal canvas doesn't reliably resync during iOS Safari's async
+               rotation resize, leaving a stale canvas stretched into the new box. */
+            width: 100px;
+            height: 100px;
             display: block;
             cursor: pointer;
         }
