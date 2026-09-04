@@ -55,7 +55,7 @@
   },
   {
     "name": "Odeur de sang",
-    "description": "Au lieu d'attaquer celui qui a pioché, les zombies <affectedZombies> attaquent le joueur ayant le moins de cartes.",
+    "description": "Au lieu d'attaquer celui qui a pioché, les zombies <affectedZombies> attaquent <affectedPlayer>.",
     "spawnChances": "HIGH",
     "affectedZombies": [
       {
@@ -86,6 +86,12 @@
         "value": "Zombie Boss",
         "spawnChances": "LOW"
       }
+    ],
+    "affectedPlayer": [
+      {"name": "weakestPlayer", "label": "le joueur ayant le moins de cartes", "spawnChances": "HIGH"},
+      {"name": "strongestPlayer", "label": "le joueur ayant le plus de cartes", "spawnChances": "HIGH"},
+      {"name": "leader", "label": "le chef de groupe", "spawnChances": "LOW"},
+      {"name": "lastPlayer", "label": "le dernier joueur", "spawnChances": "VERY_HIGH"}
     ]
   },
   {

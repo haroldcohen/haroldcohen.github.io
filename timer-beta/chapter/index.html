@@ -476,7 +476,7 @@
         const penaltyBtn = document.getElementById('penaltyBtn');
         const endChapterBtn = document.getElementById('endChapterBtn');
 
-        const SPAWN_CHANCE_WEIGHTS = { HIGH: 60, MEDIUM: 30, LOW: 10 };
+        const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
         const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
         const fateDataPromise = fetch('../../data/dice-of-fortune_capricious-fate.json').then((res) => res.json());
 
@@ -549,6 +549,10 @@
             if (picked.player) {
                 const rolledPlayer = pickWeighted(picked.player);
                 description = description.replace('<positionJoueur>', rolledPlayer.player);
+            }
+            if (picked.affectedPlayer) {
+                const rolledAffectedPlayer = pickWeighted(picked.affectedPlayer);
+                description = description.replace('<affectedPlayer>', rolledAffectedPlayer.label);
             }
 
             return { item: picked, description };
