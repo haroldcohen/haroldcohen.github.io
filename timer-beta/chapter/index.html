@@ -398,6 +398,8 @@
         const centisEl = document.getElementById('centis');
 
         const TOTAL_TIME = chapterMinutes * 60 * 100;
+        const PENALTY_AMOUNT = 2 * 60 * 100;
+        const PENALTY_FLOOR = 10 * 100;
         let timeRemaining = TOTAL_TIME;
         let isRunning = false;
         let tickInterval = null;
@@ -415,6 +417,9 @@
             if (timeRemaining > 0) {
                 timeRemaining--;
                 updateTimerDisplay();
+                if (timeRemaining < PENALTY_FLOOR) {
+                    penaltyBtn.disabled = true;
+                }
             } else {
                 clearInterval(tickInterval);
                 tickInterval = null;
@@ -709,9 +714,19 @@
             timeRemaining = TOTAL_TIME;
             updateTimerDisplay();
             startBtn.textContent = 'Commencer';
+            penaltyBtn.disabled = false;
 
             if (lastAggregatedHelp) {
                 renderSidebarHelpList(lastAggregatedHelp);
+            }
+        });
+
+        penaltyBtn.addEventListener('click', () => {
+            timeRemaining = Math.max(timeRemaining - PENALTY_AMOUNT, PENALTY_FLOOR);
+            updateTimerDisplay();
+
+            if (timeRemaining < PENALTY_FLOOR) {
+                penaltyBtn.disabled = true;
             }
         });
     </script>
