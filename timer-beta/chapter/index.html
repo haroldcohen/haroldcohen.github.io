@@ -391,10 +391,10 @@
                 </div>
                 <button id="nextBtn" class="end-chapter-btn">Suivant</button>
             </div>
-            <div id="sortView" class="dice-result-view" hidden>
+            <div id="tributeView" class="dice-result-view" hidden>
                 <div class="dice-result-content">
-                    <div class="dice-result-heading">Caprice du sort :</div>
-                    <div id="sortDescription" class="item-detail-description"></div>
+                    <div class="dice-result-heading">Tribut :</div>
+                    <div id="tributeDescription" class="item-detail-description"></div>
                 </div>
                 <button id="okBtn" class="end-chapter-btn">Ok</button>
             </div>
@@ -503,8 +503,8 @@
         const sidebarHordeList = document.getElementById('sidebarHordeList');
         const survivorTabBtn = document.getElementById('survivorTabBtn');
         const hordeTabBtn = document.getElementById('hordeTabBtn');
-        const sortView = document.getElementById('sortView');
-        const sortDescription = document.getElementById('sortDescription');
+        const tributeView = document.getElementById('tributeView');
+        const tributeDescription = document.getElementById('tributeDescription');
         const itemDetailView = document.getElementById('itemDetailView');
         const itemDetailHeading = document.getElementById('itemDetailHeading');
         const itemDetailDescription = document.getElementById('itemDetailDescription');
@@ -532,16 +532,11 @@
 
         const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
         const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
-        const fateDataPromise = fetch('../../data/dice-of-fortune_capricious-fate.json').then((res) => res.json());
+        const tributeDataPromise = fetch('../../data/dice-of-fortune_tribute.json').then((res) => res.json());
 
         // Chapter #1 always starts with no infected players; a future "start next chapter"
         // step will let players report the infected count so this can turn true from chapter 2 on.
         const infectedPlayersCount = 0;
-
-        const CONDITION_CHECKS = {
-            'At least one player is a zombie': () => infectedPlayersCount > 0,
-            'At least one equipment box has been distributed': (ctx) => ctx.equipmentBoxGranted,
-        };
 
         function pickWeighted(pool) {
             const total = pool.reduce((sum, item) => sum + (SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0), 0);
@@ -582,16 +577,22 @@
             return order.map((item) => ({ item, count: counts.get(item.name) }));
         }
 
-        function conditionsMet(item, ctx) {
-            if (!item.conditions) return true;
-            return item.conditions.every((condition) => {
-                const check = CONDITION_CHECKS[condition];
-                return check ? check(ctx) : false;
-            });
+        // Condition keys follow "min<CtxKey>" (e.g. minObtainedSupplyCrateCount reads ctx.obtainedSupplyCrateCount);
+        // this keeps new min-threshold conditions data-only, no code changes needed to add one.
+        function conditionCtxKey(conditionKey) {
+            const stripped = conditionKey.slice(3);
+            return stripped.charAt(0).toLowerCase() + stripped.slice(1);
         }
 
-        function rollCapriciousFate(fateData, ctx) {
-            const pool = fateData.filter((item) => conditionsMet(item, ctx));
+        function conditionsMet(conditions, ctx) {
+            if (!conditions) return true;
+            return conditions.every((condition) => (
+                Object.entries(condition).every(([key, threshold]) => (ctx[conditionCtxKey(key)] || 0) >= threshold)
+            ));
+        }
+
+        function rollTribute(tributeData, ctx) {
+            const pool = tributeData.filter((item) => conditionsMet(item.spawnConditions, ctx));
             const picked = pickWeighted(pool);
             if (!picked) return null;
 
@@ -649,12 +650,15 @@
         }
 
         let currentDetailEntry = null;
-        let capriciousFateAcknowledged = false;
+        let tributeAcknowledged = false;
         let chapterStarted = false;
         let lastAggregatedHelp = null;
+        let activeTributeResult = null;
+        let openedSupplyCrateCount = 0;
+        let corruptedSuppliesTriggered = false;
 
         function showItemDetail(entry) {
-            if (!capriciousFateAcknowledged) return;
+            if (!tributeAcknowledged) return;
 
             currentDetailEntry = entry;
             itemDetailHeading.textContent = `${entry.item.label.full} :`;
@@ -691,27 +695,49 @@
             });
         }
 
-        function renderSidebarHordeList(fateResult) {
+        function renderSidebarHordeList(tributeResult) {
             sidebarHordeList.innerHTML = '';
-            if (!fateResult) return;
+            if (!tributeResult) return;
 
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'sidebar-tab-item';
-            btn.textContent = fateResult.item.label.short;
-            btn.title = fateResult.description.join('\n');
-            // Click-to-detail view for the fate roll is a follow-up task, not built yet.
+            btn.textContent = tributeResult.item.label.short;
+            btn.title = tributeResult.description.join('\n');
+            // Click-to-detail view for the tribute roll is a follow-up task, not built yet.
 
             sidebarHordeList.appendChild(btn);
         }
 
-        function openCrate(entry) {
-            const rolledContent = pickWeighted(entry.item.possibleItems);
-            let lines = rolledContent.contentDisplay;
+        function isSupplyCrate(item) {
+            return item.name === 'supplyCrate';
+        }
 
-            if (rolledContent.possibleAmmoQt) {
-                const rolledAmmo = pickWeighted(rolledContent.possibleAmmoQt);
-                lines = lines.map((line) => line.replace('{{possibleAmmoQt.qt}}', rolledAmmo.qt));
+        function corruptedSuppliesTriggerMet() {
+            return activeTributeResult
+                && activeTributeResult.item.name === 'corruptedSupplies'
+                && !corruptedSuppliesTriggered
+                && conditionsMet(activeTributeResult.item.triggerConditions, { openedSupplyCrateCount });
+        }
+
+        function openCrate(entry) {
+            let lines;
+
+            if (isSupplyCrate(entry.item) && corruptedSuppliesTriggerMet()) {
+                corruptedSuppliesTriggered = true;
+                lines = activeTributeResult.item.contentDisplay;
+            } else {
+                const rolledContent = pickWeighted(entry.item.possibleItems);
+                lines = rolledContent.contentDisplay;
+
+                if (rolledContent.possibleAmmoQt) {
+                    const rolledAmmo = pickWeighted(rolledContent.possibleAmmoQt);
+                    lines = lines.map((line) => line.replace('{{possibleAmmoQt.qt}}', rolledAmmo.qt));
+                }
+            }
+
+            if (isSupplyCrate(entry.item)) {
+                openedSupplyCrateCount += 1;
             }
 
             entry.remaining -= 1;
@@ -752,19 +778,23 @@
             timerView.hidden = true;
             diceResultView.hidden = false;
 
-            Promise.all([helpDataPromise, fateDataPromise]).then(([helpData, fateData]) => {
+            Promise.all([helpDataPromise, tributeDataPromise]).then(([helpData, tributeData]) => {
                 const grantedHelp = rollHelpItems(helpData);
                 const aggregatedHelp = aggregateHelpItems(grantedHelp);
                 lastAggregatedHelp = aggregatedHelp;
                 renderDiceResultList(aggregatedHelp);
                 renderSidebarHelpList(aggregatedHelp);
 
-                const equipmentBoxGranted = grantedHelp.some((item) => item.name === 'equipmentCrane');
-                const fateResult = rollCapriciousFate(fateData, { equipmentBoxGranted });
-                if (fateResult) {
-                    renderTextLines(sortDescription, fateResult.description);
+                const obtainedSupplyCrateCount = grantedHelp.filter(isSupplyCrate).length;
+                const tributeResult = rollTribute(tributeData, {
+                    contaminatedPlayer: infectedPlayersCount,
+                    obtainedSupplyCrateCount,
+                });
+                activeTributeResult = tributeResult;
+                if (tributeResult) {
+                    renderTextLines(tributeDescription, tributeResult.description);
                 }
-                renderSidebarHordeList(fateResult);
+                renderSidebarHordeList(tributeResult);
             });
         }, { once: true });
 
@@ -772,12 +802,12 @@
             sidebarDiceView.hidden = true;
             sidebarHelpView.hidden = false;
             diceResultView.hidden = true;
-            sortView.hidden = false;
+            tributeView.hidden = false;
         }, { once: true });
 
         okBtn.addEventListener('click', () => {
-            capriciousFateAcknowledged = true;
-            sortView.hidden = true;
+            tributeAcknowledged = true;
+            tributeView.hidden = true;
             timerView.hidden = false;
             startBtn.disabled = false;
             resetBtn.disabled = false;

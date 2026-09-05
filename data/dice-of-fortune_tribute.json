@@ -138,8 +138,10 @@
       "Les joueurs ne peuvent plus communiquer verbalement pendant la durée du chapitre."
     ],
     "spawnChances": "MEDIUM",
-    "conditions": [
-      "At least one player is a zombie"
+    "spawnConditions": [
+      {
+        "minContaminatedPlayer":  1
+      }
     ]
   },
   {
@@ -195,9 +197,20 @@
     "description": [
       "Une des caisses d'équipement contient un zombie caché au lieu d'un équipement."
     ],
+    "contentDisplay": [
+      "Un zombie s'était caché dans la caisse !",
+      "Le joueur doit résoudre 1 attaque + 1 morsure."
+    ],
     "spawnChances": "MEDIUM",
-    "conditions": [
-      "At least one equipment box has been distributed"
+    "spawnConditions": [
+      {
+        "minObtainedSupplyCrateCount": 2
+      }
+    ],
+    "triggerConditions": [
+      {
+        "minOpenedSupplyCrateCount": 1
+      }
     ]
   }
 ]

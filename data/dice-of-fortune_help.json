@@ -1,6 +1,6 @@
 [
   {
-    "name": "equipmentCrane",
+    "name": "supplyCrate",
     "label": {
       "full": "Caisse d'équipement",
       "short": "Caisse équip."
@@ -124,8 +124,7 @@
       "short": "Barricade"
     },
     "description": [
-      "Pendant 2 tours, réduit à 5 le nombre de zombies pouvant attaquer un joueur.",
-      "Comme quoi les palettes ça sert ailleurs qu'au potager."
+      "Pendant 2 tours, réduit à 5 le nombre de zombies pouvant attaquer un joueur."
     ],
     "maxSpawnPerChapter": 1,
     "spawnChances": "MEDIUM"
@@ -137,8 +136,7 @@
       "short": "Pièce rech."
     },
     "description": [
-      "Permet de réutiliser une carte spéciale défaussée pendant le chapitre.",
-      "Comme quoi les palettes ça sert ailleurs qu'au potager."
+      "Permet de réutiliser une carte spéciale défaussée pendant le chapitre."
     ],
     "maxSpawnPerChapter": 1,
     "spawnChances": "LOW"
