@@ -273,14 +273,14 @@
         .dice-result-content {
             display: flex;
             flex-direction: column;
-            gap: clamp(0.8rem, 1.8vw, 1.15rem);
+            gap: clamp(0.8rem, 4vw, 3rem);
         }
 
         .dice-result-heading {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: clamp(2.6rem, 7vw, 4.5rem);
+            font-size: clamp(3rem, 3vw, 4.5rem);
             color: #FFCC00;
             letter-spacing: -0.03em;
             line-height: 1;
@@ -311,10 +311,48 @@
             line-height: 1.15;
         }
 
+        .item-detail-heading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: clamp(8px, 1.5vw, 16px);
+        }
+
+        .item-detail-badge {
+            flex: 0 0 auto;
+            background-color: #FFCC00;
+            color: #000000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            font-size: clamp(1.9rem, 3vw, 3.35rem);
+            padding: 0.3em 0.5em;
+        }
+
         .item-detail-description {
             display: flex;
             flex-direction: column;
-            gap: clamp(8px, 1.5vw, 14px);
+            gap: clamp(6px, 0.65vw, 14px);
+        }
+
+        .item-detail-description-primary {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.9rem, 4.5vw, 3.35rem);
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+
+        .item-detail-description-secondary {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.25rem, 2.75vw, 2.2rem);
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
         }
 
         .portrait-overlay {
@@ -400,7 +438,10 @@
             </div>
             <div id="itemDetailView" class="dice-result-view" hidden>
                 <div class="dice-result-content">
-                    <div id="itemDetailHeading" class="dice-result-heading"></div>
+                    <div class="item-detail-heading-row">
+                        <div id="itemDetailHeading" class="dice-result-heading"></div>
+                        <div id="itemDetailBadge" class="item-detail-badge"></div>
+                    </div>
                     <div id="itemDetailDescription" class="item-detail-description"></div>
                 </div>
                 <div class="item-detail-actions">
@@ -507,6 +548,7 @@
         const tributeDescription = document.getElementById('tributeDescription');
         const itemDetailView = document.getElementById('itemDetailView');
         const itemDetailHeading = document.getElementById('itemDetailHeading');
+        const itemDetailBadge = document.getElementById('itemDetailBadge');
         const itemDetailDescription = document.getElementById('itemDetailDescription');
         const itemDetailUseBtn = document.getElementById('itemDetailUseBtn');
         const itemDetailCloseBtn = document.getElementById('itemDetailCloseBtn');
@@ -637,6 +679,16 @@
             });
         }
 
+        function renderPrimarySecondaryLines(container, lines) {
+            container.innerHTML = '';
+            lines.forEach((line, index) => {
+                const p = document.createElement('p');
+                p.className = index === 0 ? 'item-detail-description-primary' : 'item-detail-description-secondary';
+                p.textContent = line;
+                container.appendChild(p);
+            });
+        }
+
         function isCrate(item) {
             return !!item.possibleItems;
         }
@@ -661,12 +713,26 @@
             if (!tributeAcknowledged) return;
 
             currentDetailEntry = entry;
-            itemDetailHeading.textContent = `${entry.item.label.full} :`;
-            renderTextLines(itemDetailDescription, entry.item.description);
+            itemDetailBadge.textContent = 'Aide';
+            itemDetailHeading.textContent = entry.item.label.full;
+            renderPrimarySecondaryLines(itemDetailDescription, entry.item.description);
             itemDetailUseBtn.textContent = `${useVerb(entry.item)} (${entry.remaining} ${pluralize(entry.remaining, 'restante', 'restantes')})`;
             itemDetailUseBtn.disabled = !chapterStarted;
             itemDetailUseBtn.hidden = false;
             itemDetailCloseBtn.classList.remove('full-width');
+            timerView.hidden = true;
+            itemDetailView.hidden = false;
+        }
+
+        function showTributeDetail(tributeResult) {
+            if (!tributeAcknowledged) return;
+
+            currentDetailEntry = null;
+            itemDetailBadge.textContent = 'Tribut';
+            itemDetailHeading.textContent = tributeResult.item.label.full;
+            renderPrimarySecondaryLines(itemDetailDescription, tributeResult.description);
+            itemDetailUseBtn.hidden = true;
+            itemDetailCloseBtn.classList.add('full-width');
             timerView.hidden = true;
             itemDetailView.hidden = false;
         }
@@ -704,7 +770,7 @@
             btn.className = 'sidebar-tab-item';
             btn.textContent = tributeResult.item.label.short;
             btn.title = tributeResult.description.join('\n');
-            // Click-to-detail view for the tribute roll is a follow-up task, not built yet.
+            btn.addEventListener('click', () => showTributeDetail(tributeResult));
 
             sidebarHordeList.appendChild(btn);
         }
@@ -745,7 +811,7 @@
                 entry.buttonEl.remove();
             }
 
-            renderTextLines(itemDetailDescription, lines);
+            renderPrimarySecondaryLines(itemDetailDescription, lines);
             itemDetailUseBtn.hidden = true;
             itemDetailCloseBtn.classList.add('full-width');
         }
