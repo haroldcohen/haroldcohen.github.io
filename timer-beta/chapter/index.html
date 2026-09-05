@@ -103,17 +103,38 @@
             padding: clamp(16px, 3vw, 24px);
         }
 
-        .sidebar-help-title {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: clamp(1rem, 2.2vw, 1.3rem);
-            color: #FFFFFF;
-            letter-spacing: -0.03em;
-            border-bottom: 1px;
-            border-bottom-color: white;
-            border-bottom-style: ridge;
-            padding-bottom: 0.2em;
+        .sidebar-tabs {
+            display: flex;
+            gap: clamp(3px, 0.8vw, 6px);
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1.9 / 1;
+            background-color: #000000;
+            border: 2px solid #FFCC00;
+            cursor: pointer;
+        }
+
+        .sidebar-tab.active {
+            background-color: #FFCC00;
+            border-color: #FFCC00;
+        }
+
+        .sidebar-tab-icon {
+            width: clamp(24px, 6vw, 32px);
+            height: clamp(24px, 6vw, 32px);
+            display: block;
+        }
+
+        .sidebar-tab-panel {
+            flex: 1;
+            background-color: #FFCC00;
+            padding: clamp(12px, 2.5vw, 18px);
+            overflow-y: auto;
         }
 
         .sidebar-help-list {
@@ -122,10 +143,10 @@
             gap: clamp(8px, 1.5vw, 12px);
         }
 
-        .sidebar-help-item {
-            background-color: #000000;
-            color: #FFCC00;
-            border: 2px solid #FFCC00;
+        .sidebar-tab-item {
+            background-color: transparent;
+            color: #000000;
+            border: 2px solid #000000;
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
             text-transform: uppercase;
@@ -135,9 +156,9 @@
             letter-spacing: -0.03em;
         }
 
-        .sidebar-help-item:hover {
-            background-color: #FFCC00;
-            color: #000000;
+        .sidebar-tab-item:hover {
+            background-color: #000000;
+            color: #FFCC00;
         }
 
         .dice-instructions {
@@ -330,8 +351,18 @@
                 <div id="diceInstructions" class="dice-instructions">Lancer les dés de la fortune pour commencer.</div>
             </div>
             <div id="sidebarHelpView" class="sidebar-help-view" hidden>
-                <div class="sidebar-help-title">Aide</div>
-                <div id="sidebarHelpList" class="sidebar-help-list"></div>
+                <div class="sidebar-tabs">
+                    <button type="button" id="survivorTabBtn" class="sidebar-tab active">
+                        <img class="sidebar-tab-icon" src="../../assets/game/survivor-icon_active.svg" alt="Aide">
+                    </button>
+                    <button type="button" id="hordeTabBtn" class="sidebar-tab">
+                        <img class="sidebar-tab-icon" src="../../assets/game/horde-icon_inactive.svg" alt="Horde">
+                    </button>
+                </div>
+                <div class="sidebar-tab-panel">
+                    <div id="sidebarHelpList" class="sidebar-help-list"></div>
+                    <div id="sidebarHordeList" class="sidebar-help-list" hidden></div>
+                </div>
             </div>
         </div>
         <div class="timer-panel">
@@ -468,6 +499,9 @@
         const sidebarDiceView = document.getElementById('sidebarDiceView');
         const sidebarHelpView = document.getElementById('sidebarHelpView');
         const sidebarHelpList = document.getElementById('sidebarHelpList');
+        const sidebarHordeList = document.getElementById('sidebarHordeList');
+        const survivorTabBtn = document.getElementById('survivorTabBtn');
+        const hordeTabBtn = document.getElementById('hordeTabBtn');
         const sortView = document.getElementById('sortView');
         const sortDescription = document.getElementById('sortDescription');
         const itemDetailView = document.getElementById('itemDetailView');
@@ -481,6 +515,19 @@
         const resetBtn = document.getElementById('resetBtn');
         const penaltyBtn = document.getElementById('penaltyBtn');
         const endChapterBtn = document.getElementById('endChapterBtn');
+
+        function setActiveSidebarTab(tab) {
+            const isSurvivor = tab === 'survivor';
+            survivorTabBtn.classList.toggle('active', isSurvivor);
+            hordeTabBtn.classList.toggle('active', !isSurvivor);
+            survivorTabBtn.querySelector('img').src = `../../assets/game/survivor-icon_${isSurvivor ? 'active' : 'inactive'}.svg`;
+            hordeTabBtn.querySelector('img').src = `../../assets/game/horde-icon_${isSurvivor ? 'inactive' : 'active'}.svg`;
+            sidebarHelpList.hidden = !isSurvivor;
+            sidebarHordeList.hidden = isSurvivor;
+        }
+
+        survivorTabBtn.addEventListener('click', () => setActiveSidebarTab('survivor'));
+        hordeTabBtn.addEventListener('click', () => setActiveSidebarTab('horde'));
 
         const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
         const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
@@ -633,7 +680,7 @@
 
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'sidebar-help-item';
+                btn.className = 'sidebar-tab-item';
                 btn.textContent = item.label.short;
                 btn.title = item.description.join('\n');
                 btn.addEventListener('click', () => showItemDetail(entry));
@@ -641,6 +688,20 @@
                 entry.buttonEl = btn;
                 sidebarHelpList.appendChild(btn);
             });
+        }
+
+        function renderSidebarHordeList(fateResult) {
+            sidebarHordeList.innerHTML = '';
+            if (!fateResult) return;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sidebar-tab-item';
+            btn.textContent = fateResult.item.label.short;
+            btn.title = fateResult.description.join('\n');
+            // Click-to-detail view for the fate roll is a follow-up task, not built yet.
+
+            sidebarHordeList.appendChild(btn);
         }
 
         function openCrate(entry) {
@@ -702,6 +763,7 @@
                 if (fateResult) {
                     renderTextLines(sortDescription, fateResult.description);
                 }
+                renderSidebarHordeList(fateResult);
             });
         }, { once: true });
 
