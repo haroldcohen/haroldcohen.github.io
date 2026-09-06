@@ -485,9 +485,50 @@
         const TOTAL_TIME = chapterMinutes * 60 * 100;
         const PENALTY_AMOUNT = 2 * 60 * 100;
         const PENALTY_FLOOR = 10 * 100;
+        const FIVE_MINUTES_CS = 5 * 60 * 100;
+        const ONE_MINUTE_CS = 60 * 100;
         let timeRemaining = TOTAL_TIME;
         let isRunning = false;
         let tickInterval = null;
+        let pendingStart = false;
+
+        const sounds = {
+            breachAlarm: new Audio('../../assets/audio/alerts/breach-alarm.m4a'),
+        };
+        Object.values(sounds).forEach(a => a.preload = 'auto');
+
+        // iOS (and other mobile OSes) only allow a given <audio> element to be
+        // played later from non-gesture code (e.g. a tick loop) if that same
+        // element was already played from within a real user gesture once.
+        // Priming plays each element silently and immediately pauses it here,
+        // during the click, so later playSound() calls are allowed to succeed.
+        let audioUnlocked = false;
+
+        function primeAudioElement(audio) {
+            audio.volume = 0;
+            audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.volume = 1;
+            }).catch(() => {});
+        }
+
+        // Skip priming whichever sound is about to be played directly from
+        // this same gesture — playing it for real already unlocks it, and
+        // priming it first would race that real play() call and cancel it.
+        function unlockAudio(exceptKey) {
+            if (audioUnlocked) return;
+            Object.entries(sounds).forEach(([key, audio]) => {
+                if (key !== exceptKey) primeAudioElement(audio);
+            });
+            audioUnlocked = true;
+        }
+
+        function playSound(key) {
+            const audio = sounds[key];
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+        }
 
         function updateTimerDisplay() {
             const m = Math.floor(timeRemaining / 6000);
@@ -504,6 +545,9 @@
                 updateTimerDisplay();
                 if (timeRemaining < PENALTY_FLOOR) {
                     penaltyBtn.disabled = true;
+                }
+                if (timeRemaining > 0 && (timeRemaining % FIVE_MINUTES_CS === 0 || timeRemaining === ONE_MINUTE_CS)) {
+                    playSound('breachAlarm');
                 }
             } else {
                 clearInterval(tickInterval);
@@ -881,13 +925,41 @@
             endChapterBtn.disabled = false;
         }, { once: true });
 
+        function cancelPendingStart() {
+            sounds.breachAlarm.removeEventListener('ended', onBreachAlarmEnded);
+            sounds.breachAlarm.pause();
+            sounds.breachAlarm.currentTime = 0;
+            pendingStart = false;
+        }
+
+        function onBreachAlarmEnded() {
+            pendingStart = false;
+            isRunning = true;
+            tickInterval = setInterval(tick, 10);
+            startBtn.textContent = 'Pause';
+        }
+
         startBtn.addEventListener('click', () => {
+            // Cancel pending start if clicked while the breach alarm is still playing
+            if (pendingStart) {
+                cancelPendingStart();
+                startBtn.textContent = 'Commencer';
+                return;
+            }
+
             chapterStarted = true;
 
             if (!isRunning) {
-                isRunning = true;
-                tickInterval = setInterval(tick, 10);
-                startBtn.textContent = 'Pause';
+                if (timeRemaining === TOTAL_TIME) {
+                    unlockAudio('breachAlarm');
+                    pendingStart = true;
+                    sounds.breachAlarm.addEventListener('ended', onBreachAlarmEnded, { once: true });
+                    playSound('breachAlarm');
+                } else {
+                    isRunning = true;
+                    tickInterval = setInterval(tick, 10);
+                    startBtn.textContent = 'Pause';
+                }
             } else {
                 isRunning = false;
                 clearInterval(tickInterval);
@@ -897,6 +969,9 @@
         });
 
         resetBtn.addEventListener('click', () => {
+            if (pendingStart) {
+                cancelPendingStart();
+            }
             isRunning = false;
             clearInterval(tickInterval);
             tickInterval = null;
