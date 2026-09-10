@@ -1,0 +1,3 @@
+const CHAPTERS_MIN = 1;
+const CHAPTERS_MAX = 4;
+const CHAPTERS_DEFAULT = 4;

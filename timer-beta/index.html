@@ -266,7 +266,7 @@
 
             <div class="setting">
                 <div class="setting-label">Nombre de chapitres</div>
-                <div class="stepper" data-setting="chapters" data-min="1" data-max="4" data-value="4">
+                <div class="stepper" data-setting="chapters">
                     <button type="button" class="stepper-minus" aria-label="Diminuer">&minus;</button>
                     <div class="stepper-value">4</div>
                     <button type="button" class="stepper-plus" aria-label="Augmenter">+</button>
@@ -291,6 +291,13 @@
         </div>
     </div>
 
+    <script src="core/domain/common/storage.js"></script>
+    <script src="core/domain/common/event-bus/events.js"></script>
+    <script src="core/domain/common/event-bus/bus.js"></script>
+    <script src="core/domain/game/states.js"></script>
+    <script src="core/domain/game/chapter/states.js"></script>
+    <script src="core/domain/game/chapter/model.js"></script>
+    <script src="core/use-cases/game/chapter/add-chapter/handler.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

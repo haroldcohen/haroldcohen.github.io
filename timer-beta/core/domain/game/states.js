@@ -1,0 +1,7 @@
+const GAME_STATE = {
+    NOT_STARTED: 'NOT_STARTED',
+    STARTED: 'STARTED',
+    RUNNING: 'RUNNING',
+    PAUSED: 'PAUSED',
+    ENDED: 'ENDED',
+};

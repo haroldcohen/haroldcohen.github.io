@@ -1,0 +1,1 @@
+const domainEvents = new EventTarget();
