@@ -257,7 +257,7 @@
 
             <div class="setting">
                 <div class="setting-label">Nombre de joueurs</div>
-                <div class="stepper" data-min="3" data-max="5" data-value="4">
+                <div class="stepper" data-setting="players" data-min="3" data-max="5" data-value="4">
                     <button type="button" class="stepper-minus" aria-label="Diminuer">&minus;</button>
                     <div class="stepper-value">4</div>
                     <button type="button" class="stepper-plus" aria-label="Augmenter">+</button>
@@ -266,7 +266,7 @@
 
             <div class="setting">
                 <div class="setting-label">Nombre de chapitres</div>
-                <div class="stepper" data-min="1" data-max="4" data-value="4">
+                <div class="stepper" data-setting="chapters" data-min="1" data-max="4" data-value="4">
                     <button type="button" class="stepper-minus" aria-label="Diminuer">&minus;</button>
                     <div class="stepper-value">4</div>
                     <button type="button" class="stepper-plus" aria-label="Augmenter">+</button>
@@ -291,55 +291,6 @@
         </div>
     </div>
 
-    <script>
-        document.querySelectorAll('.stepper').forEach((stepper) => {
-            const min = parseInt(stepper.dataset.min, 10);
-            const max = parseInt(stepper.dataset.max, 10);
-            const valueEl = stepper.querySelector('.stepper-value');
-            const minusBtn = stepper.querySelector('.stepper-minus');
-            const plusBtn = stepper.querySelector('.stepper-plus');
-
-            const render = () => {
-                const value = parseInt(stepper.dataset.value, 10);
-                valueEl.textContent = value;
-                minusBtn.disabled = value <= min;
-                plusBtn.disabled = value >= max;
-            };
-
-            minusBtn.addEventListener('click', () => {
-                const value = Math.max(min, parseInt(stepper.dataset.value, 10) - 1);
-                stepper.dataset.value = value;
-                render();
-            });
-
-            plusBtn.addEventListener('click', () => {
-                const value = Math.min(max, parseInt(stepper.dataset.value, 10) + 1);
-                stepper.dataset.value = value;
-                render();
-            });
-
-            render();
-        });
-
-        const startGameBtn = document.getElementById('startGameBtn');
-
-        function updateStartLink() {
-            const selected = document.querySelector('#difficultyGroup .choice-btn.selected');
-            const difficulty = selected ? selected.dataset.value : 'normal';
-            startGameBtn.href = 'chapter/?difficulty=' + difficulty;
-        }
-
-        document.querySelectorAll('.choice-group').forEach((group) => {
-            group.querySelectorAll('.choice-btn').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    group.querySelectorAll('.choice-btn').forEach((b) => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    updateStartLink();
-                });
-            });
-        });
-
-        updateStartLink();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

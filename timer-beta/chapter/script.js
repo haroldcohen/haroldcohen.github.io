@@ -1,0 +1,550 @@
+// .frame (and the dice animation inside it) is display:none in portrait. If the
+// dotlottie-wc component gets its src while hidden, it measures a zero-size
+// container and renders distorted afterwards even once rotated to landscape and
+// shown. So only give it a src once the page is actually in landscape.
+const diceAnimEl = document.getElementById('diceAnim');
+const landscapeQuery = window.matchMedia('(orientation: landscape)');
+
+function loadDiceAnimWhenLandscape() {
+    if (landscapeQuery.matches && !diceAnimEl.getAttribute('src')) {
+        diceAnimEl.setAttribute('src', '../../assets/game/dice-of-fortune.json');
+    }
+}
+
+loadDiceAnimWhenLandscape();
+landscapeQuery.addEventListener('change', loadDiceAnimWhenLandscape);
+
+const DIFFICULTY_MINUTES = {
+    facile: 20,
+    normal: 15,
+    difficile: 10,
+};
+
+const GAME_STORAGE_KEY = 'deadEndGame';
+
+function readGame() {
+    try {
+        return JSON.parse(sessionStorage.getItem(GAME_STORAGE_KEY)) || {};
+    } catch {
+        return {};
+    }
+}
+
+const gameSettings = readGame().settings || {};
+const chapterMinutes = DIFFICULTY_MINUTES[gameSettings.difficulty] ?? DIFFICULTY_MINUTES.normal;
+
+const minutesEl = document.getElementById('minutes');
+const secondsEl = document.getElementById('seconds');
+const centisEl = document.getElementById('centis');
+
+const TOTAL_TIME = chapterMinutes * 60 * 100;
+const PENALTY_AMOUNT = 2 * 60 * 100;
+const PENALTY_FLOOR = 10 * 100;
+const FIVE_MINUTES_CS = 5 * 60 * 100;
+const ONE_MINUTE_CS = 60 * 100;
+let timeRemaining = TOTAL_TIME;
+let isRunning = false;
+let tickInterval = null;
+let pendingStart = false;
+
+const sounds = {
+    breachAlarm: new Audio('../../assets/audio/alerts/breach-alarm.m4a'),
+};
+Object.values(sounds).forEach(a => a.preload = 'auto');
+
+// iOS (and other mobile OSes) only allow a given <audio> element to be
+// played later from non-gesture code (e.g. a tick loop) if that same
+// element was already played from within a real user gesture once.
+// Priming plays each element silently and immediately pauses it here,
+// during the click, so later playSound() calls are allowed to succeed.
+let audioUnlocked = false;
+
+function primeAudioElement(audio) {
+    audio.volume = 0;
+    audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 1;
+    }).catch(() => {});
+}
+
+// Skip priming whichever sound is about to be played directly from
+// this same gesture — playing it for real already unlocks it, and
+// priming it first would race that real play() call and cancel it.
+function unlockAudio(exceptKey) {
+    if (audioUnlocked) return;
+    Object.entries(sounds).forEach(([key, audio]) => {
+        if (key !== exceptKey) primeAudioElement(audio);
+    });
+    audioUnlocked = true;
+}
+
+function playSound(key) {
+    const audio = sounds[key];
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+}
+
+function updateTimerDisplay() {
+    const m = Math.floor(timeRemaining / 6000);
+    const s = Math.floor((timeRemaining % 6000) / 100);
+    const c = timeRemaining % 100;
+    minutesEl.textContent = String(m).padStart(2, '0');
+    secondsEl.textContent = String(s).padStart(2, '0');
+    centisEl.textContent = String(c).padStart(2, '0');
+}
+
+function tick() {
+    if (timeRemaining > 0) {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining < PENALTY_FLOOR) {
+            penaltyBtn.disabled = true;
+        }
+        if (timeRemaining > 0 && (timeRemaining % FIVE_MINUTES_CS === 0 || timeRemaining === ONE_MINUTE_CS)) {
+            playSound('breachAlarm');
+        }
+    } else {
+        clearInterval(tickInterval);
+        tickInterval = null;
+        isRunning = false;
+    }
+}
+
+updateTimerDisplay();
+
+function fitChapterBanner() {
+    const banner = document.querySelector('.chapter-banner');
+    const text = document.querySelector('.chapter-banner-text');
+    const style = getComputedStyle(banner);
+    const available = banner.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+
+    const baseSize = 16;
+    text.style.fontSize = baseSize + 'px';
+    const naturalWidth = text.scrollWidth;
+
+    text.style.fontSize = (available / naturalWidth) * baseSize + 'px';
+}
+
+fitChapterBanner();
+window.addEventListener('resize', fitChapterBanner);
+if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fitChapterBanner);
+}
+
+const diceAnim = document.getElementById('diceAnim');
+const diceInstructions = document.getElementById('diceInstructions');
+const timerView = document.getElementById('timerView');
+const diceResultView = document.getElementById('diceResultView');
+const diceResultList = document.getElementById('diceResultList');
+const sidebarDiceView = document.getElementById('sidebarDiceView');
+const sidebarHelpView = document.getElementById('sidebarHelpView');
+const sidebarHelpList = document.getElementById('sidebarHelpList');
+const sidebarHordeList = document.getElementById('sidebarHordeList');
+const survivorTabBtn = document.getElementById('survivorTabBtn');
+const hordeTabBtn = document.getElementById('hordeTabBtn');
+const tributeView = document.getElementById('tributeView');
+const tributeDescription = document.getElementById('tributeDescription');
+const itemDetailView = document.getElementById('itemDetailView');
+const itemDetailHeading = document.getElementById('itemDetailHeading');
+const itemDetailBadge = document.getElementById('itemDetailBadge');
+const itemDetailDescription = document.getElementById('itemDetailDescription');
+const itemDetailUseBtn = document.getElementById('itemDetailUseBtn');
+const itemDetailCloseBtn = document.getElementById('itemDetailCloseBtn');
+const nextBtn = document.getElementById('nextBtn');
+const okBtn = document.getElementById('okBtn');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const penaltyBtn = document.getElementById('penaltyBtn');
+const endChapterBtn = document.getElementById('endChapterBtn');
+
+function setActiveSidebarTab(tab) {
+    const isSurvivor = tab === 'survivor';
+    survivorTabBtn.classList.toggle('active', isSurvivor);
+    hordeTabBtn.classList.toggle('active', !isSurvivor);
+    survivorTabBtn.querySelector('img').src = `../../assets/game/survivor-icon_${isSurvivor ? 'active' : 'inactive'}.svg`;
+    hordeTabBtn.querySelector('img').src = `../../assets/game/horde-icon_${isSurvivor ? 'inactive' : 'active'}.svg`;
+    sidebarHelpList.hidden = !isSurvivor;
+    sidebarHordeList.hidden = isSurvivor;
+}
+
+survivorTabBtn.addEventListener('click', () => setActiveSidebarTab('survivor'));
+hordeTabBtn.addEventListener('click', () => setActiveSidebarTab('horde'));
+
+const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
+const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
+const tributeDataPromise = fetch('../../data/dice-of-fortune_tribute.json').then((res) => res.json());
+
+// Chapter #1 always starts with no infected players; a future "start next chapter"
+// step will let players report the infected count so this can turn true from chapter 2 on.
+const infectedPlayersCount = 0;
+
+function pickWeighted(pool) {
+    const total = pool.reduce((sum, item) => sum + (SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0), 0);
+    if (total <= 0) return null;
+    let roll = Math.random() * total;
+    for (const item of pool) {
+        roll -= SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0;
+        if (roll <= 0) return item;
+    }
+    return pool[pool.length - 1];
+}
+
+function rollHelpItems(helpData) {
+    const spawnCounts = new Map(helpData.map((item) => [item.name, 0]));
+    const itemCount = 1 + Math.floor(Math.random() * 3);
+    const granted = [];
+
+    for (let i = 0; i < itemCount; i++) {
+        const pool = helpData.filter((item) => spawnCounts.get(item.name) < item.maxSpawnPerChapter);
+        const picked = pickWeighted(pool);
+        if (!picked) break;
+        spawnCounts.set(picked.name, spawnCounts.get(picked.name) + 1);
+        granted.push(picked);
+    }
+    return granted;
+}
+
+function aggregateHelpItems(items) {
+    const order = [];
+    const counts = new Map();
+    for (const item of items) {
+        if (!counts.has(item.name)) {
+            order.push(item);
+            counts.set(item.name, 0);
+        }
+        counts.set(item.name, counts.get(item.name) + 1);
+    }
+    return order.map((item) => ({ item, count: counts.get(item.name) }));
+}
+
+// Condition keys follow "min<CtxKey>" (e.g. minObtainedSupplyCrateCount reads ctx.obtainedSupplyCrateCount);
+// this keeps new min-threshold conditions data-only, no code changes needed to add one.
+function conditionCtxKey(conditionKey) {
+    const stripped = conditionKey.slice(3);
+    return stripped.charAt(0).toLowerCase() + stripped.slice(1);
+}
+
+function conditionsMet(conditions, ctx) {
+    if (!conditions) return true;
+    return conditions.every((condition) => (
+        Object.entries(condition).every(([key, threshold]) => (ctx[conditionCtxKey(key)] || 0) >= threshold)
+    ));
+}
+
+function rollTribute(tributeData, ctx) {
+    const pool = tributeData.filter((item) => conditionsMet(item.spawnConditions, ctx));
+    const picked = pickWeighted(pool);
+    if (!picked) return null;
+
+    const substitutions = [];
+    if (picked.possibleAffectedZombies) {
+        const rolledZombie = pickWeighted(picked.possibleAffectedZombies);
+        substitutions.push(['{{affectedZombies.value}}', rolledZombie.value]);
+    }
+    if (picked.possibleAffectedPlayers) {
+        const rolledAffectedPlayer = pickWeighted(picked.possibleAffectedPlayers);
+        substitutions.push(['{{affectedPlayers.label}}', rolledAffectedPlayer.label]);
+    }
+    if (picked.possiblePlayerPositions) {
+        const rolledPlayerPosition = pickWeighted(picked.possiblePlayerPositions);
+        substitutions.push(['{{playerPosition}}', rolledPlayerPosition.value]);
+    }
+
+    const description = picked.description.map((line) => (
+        substitutions.reduce((text, [placeholder, value]) => text.replace(placeholder, value), line)
+    ));
+
+    return { item: picked, description };
+}
+
+function renderDiceResultList(aggregated) {
+    diceResultList.innerHTML = '';
+    aggregated.forEach(({ item, count }) => {
+        const li = document.createElement('li');
+        li.textContent = count > 1 ? `${item.label.full} x${count}` : item.label.full;
+        li.title = item.description.join('\n');
+        diceResultList.appendChild(li);
+    });
+}
+
+function renderTextLines(container, lines) {
+    container.innerHTML = '';
+    lines.forEach((line) => {
+        const p = document.createElement('p');
+        p.className = 'sort-description';
+        p.textContent = line;
+        container.appendChild(p);
+    });
+}
+
+function renderPrimarySecondaryLines(container, lines) {
+    container.innerHTML = '';
+    lines.forEach((line, index) => {
+        const p = document.createElement('p');
+        p.className = index === 0 ? 'item-detail-description-primary' : 'item-detail-description-secondary';
+        p.textContent = line;
+        container.appendChild(p);
+    });
+}
+
+function isCrate(item) {
+    return !!item.possibleItems;
+}
+
+function useVerb(item) {
+    return isCrate(item) ? 'Ouvrir' : 'Utiliser';
+}
+
+function pluralize(count, singular, plural) {
+    return count > 1 ? plural : singular;
+}
+
+let currentDetailEntry = null;
+let tributeAcknowledged = false;
+let chapterStarted = false;
+let lastAggregatedHelp = null;
+let activeTributeResult = null;
+let openedSupplyCrateCount = 0;
+let corruptedSuppliesTriggered = false;
+
+function showItemDetail(entry) {
+    if (!tributeAcknowledged) return;
+
+    currentDetailEntry = entry;
+    itemDetailBadge.textContent = 'Aide';
+    itemDetailHeading.textContent = entry.item.label.full;
+    renderPrimarySecondaryLines(itemDetailDescription, entry.item.description);
+    itemDetailUseBtn.textContent = `${useVerb(entry.item)} (${entry.remaining} ${pluralize(entry.remaining, 'restante', 'restantes')})`;
+    itemDetailUseBtn.disabled = !chapterStarted;
+    itemDetailUseBtn.hidden = false;
+    itemDetailCloseBtn.classList.remove('full-width');
+    timerView.hidden = true;
+    itemDetailView.hidden = false;
+}
+
+function showTributeDetail(tributeResult) {
+    if (!tributeAcknowledged) return;
+
+    currentDetailEntry = null;
+    itemDetailBadge.textContent = 'Tribut';
+    itemDetailHeading.textContent = tributeResult.item.label.full;
+    renderPrimarySecondaryLines(itemDetailDescription, tributeResult.description);
+    itemDetailUseBtn.hidden = true;
+    itemDetailCloseBtn.classList.add('full-width');
+    timerView.hidden = true;
+    itemDetailView.hidden = false;
+}
+
+function closeItemDetail() {
+    currentDetailEntry = null;
+    itemDetailView.hidden = true;
+    timerView.hidden = false;
+}
+
+function renderSidebarHelpList(aggregated) {
+    sidebarHelpList.innerHTML = '';
+
+    aggregated.forEach(({ item, count }) => {
+        const entry = { item, remaining: count };
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sidebar-tab-item';
+        btn.textContent = item.label.short;
+        btn.title = item.description.join('\n');
+        btn.addEventListener('click', () => showItemDetail(entry));
+
+        entry.buttonEl = btn;
+        sidebarHelpList.appendChild(btn);
+    });
+}
+
+function renderSidebarHordeList(tributeResult) {
+    sidebarHordeList.innerHTML = '';
+    if (!tributeResult) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sidebar-tab-item';
+    btn.textContent = tributeResult.item.label.short;
+    btn.title = tributeResult.description.join('\n');
+    btn.addEventListener('click', () => showTributeDetail(tributeResult));
+
+    sidebarHordeList.appendChild(btn);
+}
+
+function isSupplyCrate(item) {
+    return item.name === 'supplyCrate';
+}
+
+function corruptedSuppliesTriggerMet() {
+    return activeTributeResult
+        && activeTributeResult.item.name === 'corruptedSupplies'
+        && !corruptedSuppliesTriggered
+        && conditionsMet(activeTributeResult.item.triggerConditions, { openedSupplyCrateCount });
+}
+
+function openCrate(entry) {
+    let lines;
+
+    if (isSupplyCrate(entry.item) && corruptedSuppliesTriggerMet()) {
+        corruptedSuppliesTriggered = true;
+        lines = activeTributeResult.item.contentDisplay;
+    } else {
+        const rolledContent = pickWeighted(entry.item.possibleItems);
+        lines = rolledContent.contentDisplay;
+
+        if (rolledContent.possibleAmmoQt) {
+            const rolledAmmo = pickWeighted(rolledContent.possibleAmmoQt);
+            lines = lines.map((line) => line.replace('{{possibleAmmoQt.qt}}', rolledAmmo.qt));
+        }
+    }
+
+    if (isSupplyCrate(entry.item)) {
+        openedSupplyCrateCount += 1;
+    }
+
+    entry.remaining -= 1;
+    if (entry.remaining <= 0) {
+        entry.buttonEl.remove();
+    }
+
+    renderPrimarySecondaryLines(itemDetailDescription, lines);
+    itemDetailUseBtn.hidden = true;
+    itemDetailCloseBtn.classList.add('full-width');
+}
+
+itemDetailUseBtn.addEventListener('click', () => {
+    if (!currentDetailEntry) return;
+
+    if (isCrate(currentDetailEntry.item)) {
+        openCrate(currentDetailEntry);
+        return;
+    }
+
+    currentDetailEntry.remaining -= 1;
+
+    if (currentDetailEntry.remaining <= 0) {
+        currentDetailEntry.buttonEl.remove();
+        closeItemDetail();
+    } else {
+        itemDetailUseBtn.textContent = `${useVerb(currentDetailEntry.item)} (${currentDetailEntry.remaining} ${pluralize(currentDetailEntry.remaining, 'restante', 'restantes')})`;
+    }
+});
+
+itemDetailCloseBtn.addEventListener('click', closeItemDetail);
+
+diceAnim.addEventListener('click', () => {
+    diceAnim.dotLottie?.play();
+    diceAnim.style.pointerEvents = 'none';
+    diceAnim.style.cursor = 'default';
+    diceInstructions.hidden = true;
+    timerView.hidden = true;
+    diceResultView.hidden = false;
+
+    Promise.all([helpDataPromise, tributeDataPromise]).then(([helpData, tributeData]) => {
+        const grantedHelp = rollHelpItems(helpData);
+        const aggregatedHelp = aggregateHelpItems(grantedHelp);
+        lastAggregatedHelp = aggregatedHelp;
+        renderDiceResultList(aggregatedHelp);
+        renderSidebarHelpList(aggregatedHelp);
+
+        const obtainedSupplyCrateCount = grantedHelp.filter(isSupplyCrate).length;
+        const tributeResult = rollTribute(tributeData, {
+            contaminatedPlayer: infectedPlayersCount,
+            obtainedSupplyCrateCount,
+        });
+        activeTributeResult = tributeResult;
+        if (tributeResult) {
+            renderTextLines(tributeDescription, tributeResult.description);
+        }
+        renderSidebarHordeList(tributeResult);
+    });
+}, { once: true });
+
+nextBtn.addEventListener('click', () => {
+    sidebarDiceView.hidden = true;
+    sidebarHelpView.hidden = false;
+    diceResultView.hidden = true;
+    tributeView.hidden = false;
+}, { once: true });
+
+okBtn.addEventListener('click', () => {
+    tributeAcknowledged = true;
+    tributeView.hidden = true;
+    timerView.hidden = false;
+    startBtn.disabled = false;
+    resetBtn.disabled = false;
+    penaltyBtn.disabled = false;
+    endChapterBtn.disabled = false;
+}, { once: true });
+
+function cancelPendingStart() {
+    sounds.breachAlarm.removeEventListener('ended', onBreachAlarmEnded);
+    sounds.breachAlarm.pause();
+    sounds.breachAlarm.currentTime = 0;
+    pendingStart = false;
+}
+
+function onBreachAlarmEnded() {
+    pendingStart = false;
+    isRunning = true;
+    tickInterval = setInterval(tick, 10);
+    startBtn.textContent = 'Pause';
+}
+
+startBtn.addEventListener('click', () => {
+    // Cancel pending start if clicked while the breach alarm is still playing
+    if (pendingStart) {
+        cancelPendingStart();
+        startBtn.textContent = 'Commencer';
+        return;
+    }
+
+    chapterStarted = true;
+
+    if (!isRunning) {
+        if (timeRemaining === TOTAL_TIME) {
+            unlockAudio('breachAlarm');
+            pendingStart = true;
+            sounds.breachAlarm.addEventListener('ended', onBreachAlarmEnded, { once: true });
+            playSound('breachAlarm');
+        } else {
+            isRunning = true;
+            tickInterval = setInterval(tick, 10);
+            startBtn.textContent = 'Pause';
+        }
+    } else {
+        isRunning = false;
+        clearInterval(tickInterval);
+        tickInterval = null;
+        startBtn.textContent = 'Reprendre';
+    }
+});
+
+resetBtn.addEventListener('click', () => {
+    if (pendingStart) {
+        cancelPendingStart();
+    }
+    isRunning = false;
+    clearInterval(tickInterval);
+    tickInterval = null;
+    timeRemaining = TOTAL_TIME;
+    updateTimerDisplay();
+    startBtn.textContent = 'Commencer';
+    penaltyBtn.disabled = false;
+
+    if (lastAggregatedHelp) {
+        renderSidebarHelpList(lastAggregatedHelp);
+    }
+});
+
+penaltyBtn.addEventListener('click', () => {
+    timeRemaining = Math.max(timeRemaining - PENALTY_AMOUNT, PENALTY_FLOOR);
+    updateTimerDisplay();
+
+    if (timeRemaining < PENALTY_FLOOR) {
+        penaltyBtn.disabled = true;
+    }
+});
