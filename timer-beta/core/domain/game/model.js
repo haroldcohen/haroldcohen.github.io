@@ -10,6 +10,12 @@ const DIFFICULTY_VALUES = ['facile', 'normal', 'difficile'];
 const DIFFICULTY_DEFAULT = 'normal';
 
 class Game {
+    static DIFFICULTY_MINUTES = {
+        facile: 20,
+        normal: 15,
+        difficile: 10,
+    };
+
     constructor({
         state = GAME_STATE.NOT_STARTED,
         players = PLAYERS_DEFAULT,
@@ -54,6 +60,11 @@ class Game {
     start() {
         this.state = GAME_STATE.STARTED;
         this.currentChapter = 0;
+        this.#computeAndSetTimerDuration();
+    }
+
+    #computeAndSetTimerDuration() {
+        this.settings.timerDuration = Game.DIFFICULTY_MINUTES[this.settings.difficulty] * 60 * 100;
     }
 
     loadChapter() {
