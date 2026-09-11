@@ -1,8 +1,7 @@
 function AddChapter() {
-    const { chapters = [] } = readGame();
-    if (chapters.length >= CHAPTERS_MAX) return;
+    const game = loadGame();
+    game.addChapter();
+    saveGame(game);
 
-    dispatchDomainEvent('ChapterWasAdded', {
-        chapter: { num: chapters.length + 1, state: CHAPTER_STATE.NOT_STARTED },
-    });
+    dispatchDomainEvent('ChapterWasAdded', { chapters: game.chapters });
 }

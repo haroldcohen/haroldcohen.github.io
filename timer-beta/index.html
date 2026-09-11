@@ -257,7 +257,7 @@
 
             <div class="setting">
                 <div class="setting-label">Nombre de joueurs</div>
-                <div class="stepper" data-setting="players" data-min="3" data-max="5" data-value="4">
+                <div class="stepper" data-setting="players" data-value="4">
                     <button type="button" class="stepper-minus" aria-label="Diminuer">&minus;</button>
                     <div class="stepper-value">4</div>
                     <button type="button" class="stepper-plus" aria-label="Augmenter">+</button>
@@ -295,9 +295,17 @@
     <script src="core/domain/common/event-bus/events.js"></script>
     <script src="core/domain/common/event-bus/bus.js"></script>
     <script src="core/domain/game/states.js"></script>
+    <script src="core/domain/game/model.js"></script>
+    <script src="core/domain/game/store/load.js"></script>
     <script src="core/domain/game/chapter/states.js"></script>
     <script src="core/domain/game/chapter/model.js"></script>
     <script src="core/use-cases/game/chapter/add-chapter/handler.js"></script>
+    <script src="core/use-cases/game/chapter/remove-chapter/handler.js"></script>
+    <script src="core/use-cases/game/add-player/handler.js"></script>
+    <script src="core/use-cases/game/remove-player/handler.js"></script>
+    <script src="core/use-cases/game/choose-difficulty/handler.js"></script>
+    <script src="core/use-cases/game/create-new-game/handler.js"></script>
+    <script src="core/use-cases/game/start-game/handler.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

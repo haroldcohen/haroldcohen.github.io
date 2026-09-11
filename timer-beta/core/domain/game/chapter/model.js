@@ -1,3 +1,6 @@
-const CHAPTERS_MIN = 1;
-const CHAPTERS_MAX = 4;
-const CHAPTERS_DEFAULT = 4;
+class Chapter {
+    constructor(num, state = CHAPTER_STATE.NOT_STARTED) {
+        this.num = num;
+        this.state = state;
+    }
+}
