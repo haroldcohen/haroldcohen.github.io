@@ -1,5 +1,5 @@
 function RemoveChapter() {
-    const game = loadGame();
+    const game = fetchGame();
     game.removeChapter();
     saveGame(game);
 

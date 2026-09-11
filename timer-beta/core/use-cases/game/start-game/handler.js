@@ -1,5 +1,5 @@
 function StartGame() {
-    const game = loadGame();
+    const game = fetchGame();
     game.start();
     saveGame(game);
 

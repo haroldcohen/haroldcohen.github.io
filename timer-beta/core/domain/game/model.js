@@ -15,10 +15,12 @@ class Game {
         players = PLAYERS_DEFAULT,
         difficulty = DIFFICULTY_DEFAULT,
         chapters,
+        currentChapter,
     } = {}) {
         this.state = state;
         this.settings = { players, difficulty };
         this.chapters = chapters;
+        this.currentChapter = currentChapter;
     }
 
     chooseDifficulty(difficulty) {
@@ -52,5 +54,10 @@ class Game {
     start() {
         this.state = GAME_STATE.STARTED;
         this.currentChapter = 0;
+    }
+
+    loadChapter() {
+        const chapter = this.chapters[this.currentChapter];
+        chapter.load();
     }
 }

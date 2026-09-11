@@ -20,16 +20,6 @@ const DIFFICULTY_MINUTES = {
     difficile: 10,
 };
 
-const GAME_STORAGE_KEY = 'deadEndGame';
-
-function readGame() {
-    try {
-        return JSON.parse(sessionStorage.getItem(GAME_STORAGE_KEY)) || {};
-    } catch {
-        return {};
-    }
-}
-
 const gameSettings = readGame().settings || {};
 const chapterMinutes = DIFFICULTY_MINUTES[gameSettings.difficulty] ?? DIFFICULTY_MINUTES.normal;
 
@@ -125,6 +115,15 @@ function fitChapterBanner() {
 
     text.style.fontSize = (available / naturalWidth) * baseSize + 'px';
 }
+
+const chapterBannerText = document.querySelector('.chapter-banner-text');
+
+onDomainEvent('ChapterWasLoaded', ({ chapter }) => {
+    chapterBannerText.textContent = `Chapitre #${chapter.num}`;
+    fitChapterBanner();
+});
+
+LoadChapter();
 
 fitChapterBanner();
 window.addEventListener('resize', fitChapterBanner);

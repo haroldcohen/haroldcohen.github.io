@@ -1,5 +1,5 @@
 function ChooseDifficulty(difficulty) {
-    const game = loadGame();
+    const game = fetchGame();
     game.chooseDifficulty(difficulty);
     saveGame(game);
 

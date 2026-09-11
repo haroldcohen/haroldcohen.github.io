@@ -1,5 +1,5 @@
 function AddChapter() {
-    const game = loadGame();
+    const game = fetchGame();
     game.addChapter();
     saveGame(game);
 

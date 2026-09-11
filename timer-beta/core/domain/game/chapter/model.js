@@ -3,4 +3,8 @@ class Chapter {
         this.num = num;
         this.state = state;
     }
+
+    load() {
+        this.state = CHAPTER_STATE.LOADED;
+    }
 }

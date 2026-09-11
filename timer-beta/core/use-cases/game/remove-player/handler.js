@@ -1,5 +1,5 @@
 function RemovePlayer() {
-    const game = loadGame();
+    const game = fetchGame();
     game.removePlayer();
     saveGame(game);
 

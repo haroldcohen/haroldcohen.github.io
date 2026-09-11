@@ -1,5 +1,5 @@
 function AddPlayer() {
-    const game = loadGame();
+    const game = fetchGame();
     game.addPlayer();
     saveGame(game);
 
