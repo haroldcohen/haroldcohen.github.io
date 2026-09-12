@@ -1,0 +1,163 @@
+[
+  {
+    "name": "ironSkin",
+    "rollChances": "HIGH",
+    "possibleAffectedZombies": [
+      {
+        "value": "1",
+        "rollChances": "HIGH"
+      },
+      {
+        "value": "3",
+        "rollChances": "HIGH"
+      },
+      {
+        "value": "5",
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": "8",
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": "13",
+        "rollChances": "LOW"
+      }
+    ]
+  },
+  {
+    "name": "explosiveBlood",
+    "rollChances": "HIGH",
+    "possibleAffectedZombies": [
+      {
+        "value": "1",
+        "rollChances": "LOW"
+      },
+      {
+        "value": "3",
+        "rollChances": "LOW"
+      },
+      {
+        "value": "5",
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": "8",
+        "rollChances": "HIGH"
+      },
+      {
+        "value": "13",
+        "rollChances": "HIGH"
+      }
+    ]
+  },
+  {
+    "name": "bloodScent",
+    "rollChances": "HIGH",
+    "possibleAffectedZombies": [
+      {
+        "value": "les zombies de valeur 1",
+        "rollChances": "LOW"
+      },
+      {
+        "value": "les zombies de valeur 3",
+        "rollChances": "LOW"
+      },
+      {
+        "value": "les zombies de valeur 5",
+        "rollChances": "HIGH"
+      },
+      {
+        "value": "les zombies de valeur 8",
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": "les zombies de valeur 13",
+        "rollChances": "LOW"
+      },
+      {
+        "value": "les zombies cachés",
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": "le Boss",
+        "rollChances": "MEDIUM"
+      }
+    ],
+    "possibleAffectedPlayers": [
+      {
+        "name": "weakestPlayer",
+        "label": "le joueur ayant le moins de cartes",
+        "rollChances": "HIGH"
+      },
+      {
+        "name": "strongestPlayer",
+        "label": "le joueur ayant le plus de cartes",
+        "rollChances": "HIGH"
+      },
+      {
+        "name": "leader",
+        "label": "le chef de groupe",
+        "rollChances": "LOW"
+      },
+      {
+        "name": "lastPlayer",
+        "label": "le dernier joueur",
+        "rollChances": "VERY_HIGH"
+      }
+    ]
+  },
+  {
+    "name": "radioSilence",
+    "rollChances": "MEDIUM",
+    "rollConditions": [
+      {
+        "minContaminatedPlayer": 1
+      }
+    ]
+  },
+  {
+    "name": "slipperyGround",
+    "rollChances": "LOW"
+  },
+  {
+    "name": "rationing",
+    "rollChances": "MEDIUM",
+    "possiblePlayerPositions": [
+      {
+        "value": 1,
+        "rollChances": "LOW"
+      },
+      {
+        "value": -1,
+        "rollChances": "LOW"
+      },
+      {
+        "value": 2,
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": 3,
+        "rollChances": "MEDIUM"
+      },
+      {
+        "value": 4,
+        "rollChances": "MEDIUM"
+      }
+    ]
+  },
+  {
+    "name": "corruptedSupplies",
+    "rollChances": "MEDIUM",
+    "rollConditions": [
+      {
+        "minObtainedSupplyCrateCount": 2
+      }
+    ],
+    "triggerConditions": [
+      {
+        "minOpenedSupplyCrateCount": 1
+      }
+    ]
+  }
+]

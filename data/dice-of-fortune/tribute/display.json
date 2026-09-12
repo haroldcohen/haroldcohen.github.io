@@ -1,0 +1,76 @@
+[
+  {
+    "name": "ironSkin",
+    "label": {
+      "full": "Peau de fer",
+      "short": "Peau de fer"
+    },
+    "description": [
+      "Les zombies de valeur {{affectedZombies.value}} sont immunisés contre les armes blanches."
+    ]
+  },
+  {
+    "name": "explosiveBlood",
+    "label": {
+      "full": "Sang explosif",
+      "short": "Sang explosif"
+    },
+    "description": [
+      "Les zombies de valeur {{affectedZombies.value}} tués par armes à feu explosent et contaminent le joueur suivant."
+    ]
+  },
+  {
+    "name": "bloodScent",
+    "label": {
+      "full": "Odeur de sang",
+      "short": "Odeur de sang"
+    },
+    "description": [
+      "Au lieu d'attaquer celui qui a pioché, {{affectedZombies.value}} attaquent {{affectedPlayers.label}}."
+    ]
+  },
+  {
+    "name": "radioSilence",
+    "label": {
+      "full": "Silence radio",
+      "short": "Silence radio"
+    },
+    "description": [
+      "Les joueurs ne peuvent plus communiquer verbalement pendant la durée du chapitre."
+    ]
+  },
+  {
+    "name": "slipperyGround",
+    "label": {
+      "full": "Terrain glissant",
+      "short": "Terrain gliss"
+    },
+    "description": [
+      "Les cartes piochées par pénalité sont remises dans la pioche."
+    ]
+  },
+  {
+    "name": "rationing",
+    "label": {
+      "full": "Rationnement",
+      "short": "Rationnement"
+    },
+    "description": [
+      "Le joueur #{{playerPosition}} du groupe ne peut pas piocher de cartes survivant durant ce chapitre."
+    ]
+  },
+  {
+    "name": "corruptedSupplies",
+    "label": {
+      "full": "Ravitaillement corrompu",
+      "short": "Ravit corr."
+    },
+    "description": [
+      "Une des caisses d'équipement contient un zombie caché au lieu d'un équipement."
+    ],
+    "contentDisplay": [
+      "Un zombie s'était caché dans la caisse !",
+      "Le joueur doit résoudre 1 attaque + 1 morsure."
+    ]
+  }
+]
