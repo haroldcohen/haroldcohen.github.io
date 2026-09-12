@@ -71,4 +71,9 @@ class Game {
         const chapter = this.chapters[this.currentChapter];
         chapter.load();
     }
+
+    rollDiceOfFortune() {
+        const chapter = this.chapters[this.currentChapter];
+        chapter.rollDiceOfFortune();
+    }
 }

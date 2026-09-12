@@ -123,6 +123,10 @@ onDomainEvent('ChapterWasLoaded', ({ chapter }) => {
     fitChapterBanner();
 });
 
+onDomainEvent('DiceOfFortuneWereRolled', () => {
+    console.log(readGame());
+});
+
 LoadChapter();
 
 fitChapterBanner();
@@ -435,6 +439,8 @@ itemDetailUseBtn.addEventListener('click', () => {
 itemDetailCloseBtn.addEventListener('click', closeItemDetail);
 
 diceAnim.addEventListener('click', () => {
+    RollDiceOfFortune();
+
     diceAnim.dotLottie?.play();
     diceAnim.style.pointerEvents = 'none';
     diceAnim.style.cursor = 'default';

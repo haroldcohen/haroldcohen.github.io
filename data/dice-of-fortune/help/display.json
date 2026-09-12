@@ -1,0 +1,92 @@
+[
+  {
+    "name": "supplyCrate",
+    "label": {
+      "full": "Caisse d'équipement",
+      "short": "Caisse équip."
+    },
+    "description": [
+      "Contient de l'equipement.",
+      "Le contenu est dévoilé au moment de l'ouverture."
+    ],
+    "possibleItems": [
+      {
+        "name": "shotgun",
+        "contentDisplay": [
+          "Shotgun (Ammo : {{possibleAmmoQt.qt}}).",
+          "Boom Shakalata motherfuckers !"
+        ]
+      },
+      {
+        "name": "ak47",
+        "contentDisplay": [
+          "AK-47 (Ammo : {{possibleAmmoQt.qt}}).",
+          "Fait presque autant de degats à l'estomac que la Vodka."
+        ]
+      },
+      {
+        "name": "armor",
+        "contentDisplay": [
+          "Armor.",
+          "Vu le temps, mieux vaut sortir couvert."
+        ]
+      },
+      {
+        "name": "machete",
+        "contentDisplay": [
+          "Machete.",
+          "Un couteau suisse, mais en plus nerveux."
+        ]
+      },
+      {
+        "name": "cure",
+        "contentDisplay": [
+          "Cure, permet de soigner un joueur.",
+          "Vous avez pas peur des aiguilles au moins ?"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "campfire",
+    "label": {
+      "full": "Feu de camp",
+      "short": "Feu de camp"
+    },
+    "description": [
+      "Permet à un joueur de passer son tour.",
+      "Des shamallows grillés au feu de bois pendant l'apocalypse. What else ?"
+    ]
+  },
+  {
+    "name": "scout",
+    "label": {
+      "full": "Eclaireur",
+      "short": "Eclaireur"
+    },
+    "description": [
+      "Permet de dévoiler les 3 cartes du dessus de la pioche Horde.",
+      "3 cartes hein, pas 4."
+    ]
+  },
+  {
+    "name": "improvisedBarricade",
+    "label": {
+      "full": "Barricade improvisée",
+      "short": "Barricade"
+    },
+    "description": [
+      "Pendant 2 tours, réduit à 5 le nombre de zombies pouvant attaquer un joueur."
+    ]
+  },
+  {
+    "name": "sparePart",
+    "label": {
+      "full": "Pièce de rechange",
+      "short": "Pièce rech."
+    },
+    "description": [
+      "Permet de réutiliser une carte spéciale défaussée pendant le chapitre."
+    ]
+  }
+]

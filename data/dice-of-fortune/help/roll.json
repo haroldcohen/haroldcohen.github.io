@@ -1,0 +1,86 @@
+[
+  {
+    "name": "supplyCrate",
+    "maxRollPerChapter": 2,
+    "rollChances": "HIGH",
+    "possibleItems": [
+      {
+        "name": "shotgun",
+        "rollChances": "HIGH",
+        "maxRollPerChapter": 2,
+        "possibleAmmoQt": [
+          {
+            "qt": 1,
+            "rollChances": "HIGH"
+          },
+          {
+            "qt": 3,
+            "rollChances": "HIGH"
+          },
+          {
+            "qt": 5,
+            "rollChances": "MEDIUM"
+          },
+          {
+            "qt": 8,
+            "rollChances": "MEDIUM"
+          }
+        ]
+      },
+      {
+        "name": "ak47",
+        "rollChances": "HIGH",
+        "maxRollPerChapter": 2,
+        "possibleAmmoQt": [
+          {
+            "qt": 5,
+            "rollChances": "HIGH"
+          },
+          {
+            "qt": 8,
+            "rollChances": "HIGH"
+          },
+          {
+            "qt": 13,
+            "rollChances": "MEDIUM"
+          }
+        ]
+      },
+      {
+        "name": "armor",
+        "rollChances": "MEDIUM",
+        "maxRollPerChapter": 1
+      },
+      {
+        "name": "machete",
+        "rollChances": "MEDIUM",
+        "maxRollPerChapter": 1
+      },
+      {
+        "name": "cure",
+        "rollChances": "LOW",
+        "maxRollPerChapter": 1
+      }
+    ]
+  },
+  {
+    "name": "campfire",
+    "maxRollPerChapter": 1,
+    "rollChances": "HIGH"
+  },
+  {
+    "name": "scout",
+    "maxRollPerChapter": 1,
+    "rollChances": "MEDIUM"
+  },
+  {
+    "name": "improvisedBarricade",
+    "maxRollPerChapter": 1,
+    "rollChances": "MEDIUM"
+  },
+  {
+    "name": "sparePart",
+    "maxRollPerChapter": 1,
+    "rollChances": "LOW"
+  }
+]
