@@ -2,125 +2,144 @@
   {
     "name": "ironSkin",
     "rollChances": "HIGH",
-    "possibleAffectedZombies": [
+    "affectedZombies": [
       {
-        "name": "zombieVal01",
-        "value": "1",
-        "rollChances": "HIGH"
-      },
-      {
-        "name": "zombieVal03",
-        "value": "3",
-        "rollChances": "HIGH"
-      },
-      {
-        "name": "zombieVal05",
-        "value": "5",
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "zombieVal08",
-        "value": "8",
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "zombieVal13",
-        "value": "13",
-        "rollChances": "LOW"
+        "group": "zombies",
+        "values": [
+          {
+            "name": "val01",
+            "rollChances": "HIGH"
+          },
+          {
+            "name": "val03",
+            "rollChances": "HIGH"
+          },
+          {
+            "name": "val05",
+            "rollChances": "MEDIUM"
+          },
+          {
+            "name": "val08",
+            "rollChances": "MEDIUM"
+          },
+          {
+            "name": "val13",
+            "rollChances": "LOW"
+          }
+        ]
       }
     ]
   },
   {
     "name": "explosiveBlood",
     "rollChances": "HIGH",
-    "possibleAffectedZombies": [
+    "affectedZombies": [
       {
-        "name": "zombieVal01",
-        "value": "1",
-        "rollChances": "LOW"
-      },
-      {
-        "name": "zombieVal03",
-        "value": "3",
-        "rollChances": "LOW"
-      },
-      {
-        "name": "zombieVal05",
-        "value": "5",
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "zombieVal08",
-        "value": "8",
-        "rollChances": "HIGH"
-      },
-      {
-        "name": "zombieVal13",
-        "value": "13",
-        "rollChances": "HIGH"
+        "group": "zombies",
+        "values": [
+          {
+            "name": "val01",
+            "rollChances": "LOW"
+          },
+          {
+            "name": "val03",
+            "rollChances": "LOW"
+          },
+          {
+            "name": "val05",
+            "rollChances": "MEDIUM"
+          },
+          {
+            "name": "val08",
+            "rollChances": "HIGH"
+          },
+          {
+            "name": "val13",
+            "rollChances": "HIGH"
+          }
+        ]
       }
     ]
   },
   {
     "name": "bloodScent",
     "rollChances": "HIGH",
-    "possibleAffectedZombies": [
+    "affectedZombies": [
       {
-        "name": "zombieVal01",
-        "value": "les zombies de valeur 1",
-        "rollChances": "LOW"
+        "group": "zombies",
+        "rollChances": "HIGH",
+        "values": [
+          {
+            "name": "val01",
+            "rollChances": "LOW"
+          },
+          {
+            "name": "val03",
+            "rollChances": "LOW"
+          },
+          {
+            "name": "val05",
+            "rollChances": "HIGH"
+          },
+          {
+            "name": "val08",
+            "rollChances": "MEDIUM"
+          },
+          {
+            "name": "val13",
+            "rollChances": "LOW"
+          }
+        ]
       },
       {
-        "name": "zombieVal03",
-        "value": "les zombies de valeur 3",
-        "rollChances": "LOW"
+        "group": "specialZombies",
+        "rollChances": "MEDIUM",
+        "values": [
+          {
+            "name": "hiddenZombie",
+            "rollChances": "MEDIUM"
+          }
+        ]
       },
       {
-        "name": "zombieVal05",
-        "value": "les zombies de valeur 5",
-        "rollChances": "HIGH"
-      },
-      {
-        "name": "zombieVal08",
-        "value": "les zombies de valeur 8",
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "zombieVal13",
-        "value": "les zombies de valeur 13",
-        "rollChances": "LOW"
-      },
-      {
-        "name": "hiddenZombie",
-        "value": "les zombies cachés",
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "zombieBoss",
-        "value": "le Boss",
-        "rollChances": "MEDIUM"
+        "group": "bossZombies",
+        "rollChances": "MEDIUM",
+        "values": [
+          {
+            "name": "zombieBoss",
+            "rollChances": "MEDIUM"
+          }
+        ]
       }
     ],
-    "possibleAffectedPlayers": [
+    "affectedPlayers": [
       {
-        "name": "weakestPlayer",
-        "label": "le joueur ayant le moins de cartes",
-        "rollChances": "HIGH"
+        "group": "playersCardsCount",
+        "rollChances": "HIGH",
+        "values": [
+          {
+            "name": "weakestPlayer",
+            "rollChances": "MEDIUM"
+          },
+          {
+            "name": "strongestPlayer",
+            "rollChances": "HIGH"
+          }
+        ]
       },
       {
-        "name": "strongestPlayer",
-        "label": "le joueur ayant le plus de cartes",
-        "rollChances": "HIGH"
-      },
-      {
-        "name": "leader",
-        "label": "le chef de groupe",
-        "rollChances": "LOW"
-      },
-      {
-        "name": "lastPlayer",
-        "label": "le dernier joueur",
-        "rollChances": "VERY_HIGH"
+        "group": "playersPosition",
+        "rollChances": "MEDIUM",
+        "values": [
+          {
+            "name": "leader",
+            "rollChances": "LOW"
+          },
+          {
+            "name": "lastPlayer",
+            "rollChances": "HIGH"
+          }
+        ]
       }
     ]
   },
@@ -140,31 +159,19 @@
   {
     "name": "rationing",
     "rollChances": "MEDIUM",
-    "possibleAffectedPlayers": [
+    "affectedPlayers": [
       {
-        "name": "playerOne",
-        "value": 1,
-        "rollChances": "LOW"
-      },
-      {
-        "name": "lastPlayer",
-        "value": -1,
-        "rollChances": "LOW"
-      },
-      {
-        "name": "playerTwo",
-        "value": 2,
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "playerThree",
-        "value": 3,
-        "rollChances": "MEDIUM"
-      },
-      {
-        "name": "playerFour",
-        "value": 4,
-        "rollChances": "MEDIUM"
+        "group": "playersPosition",
+        "values": [
+          {
+            "name": "leader",
+            "rollChances": "LOW"
+          },
+          {
+            "name": "lastPlayer",
+            "rollChances": "HIGH"
+          }
+        ]
       }
     ]
   },

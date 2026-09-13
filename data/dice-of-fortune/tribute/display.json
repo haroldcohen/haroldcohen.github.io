@@ -6,14 +6,35 @@
       "short": "Peau de fer"
     },
     "description": [
-      "Les zombies de valeur {{affectedZombies.value}} sont immunisés contre les armes blanches."
+      "{{affectedZombies.text}} sont immunisés contre les armes blanches."
     ],
-    "possibleAffectedZombies": [
-      { "name": "zombieVal01", "value": "1" },
-      { "name": "zombieVal03", "value": "3" },
-      { "name": "zombieVal05", "value": "5" },
-      { "name": "zombieVal08", "value": "8" },
-      { "name": "zombieVal13", "value": "13" }
+    "affectedZombies": [
+      {
+        "group": "zombies",
+        "text": "Les zombies de valeur {{value}}",
+        "values": [
+          {
+            "name": "val01",
+            "value": "1"
+          },
+          {
+            "name": "val03",
+            "value": "3"
+          },
+          {
+            "name": "val05",
+            "value": "5"
+          },
+          {
+            "name": "val08",
+            "value": "8"
+          },
+          {
+            "name": "val13",
+            "value": "13"
+          }
+        ]
+      }
     ]
   },
   {
@@ -23,14 +44,35 @@
       "short": "Sang explosif"
     },
     "description": [
-      "Les zombies de valeur {{affectedZombies.value}} tués par armes à feu explosent et contaminent le joueur suivant."
+      "{{affectedZombies.text}} tués par armes à feu explosent et contaminent le joueur suivant."
     ],
-    "possibleAffectedZombies": [
-      { "name": "zombieVal01", "value": "1" },
-      { "name": "zombieVal03", "value": "3" },
-      { "name": "zombieVal05", "value": "5" },
-      { "name": "zombieVal08", "value": "8" },
-      { "name": "zombieVal13", "value": "13" }
+    "affectedZombies": [
+      {
+        "group": "zombies",
+        "text": "Les zombies de valeur {{value}}",
+        "values": [
+          {
+            "name": "val01",
+            "value": "1"
+          },
+          {
+            "name": "val03",
+            "value": "3"
+          },
+          {
+            "name": "val05",
+            "value": "5"
+          },
+          {
+            "name": "val08",
+            "value": "8"
+          },
+          {
+            "name": "val13",
+            "value": "13"
+          }
+        ]
+      }
     ]
   },
   {
@@ -40,22 +82,85 @@
       "short": "Odeur de sang"
     },
     "description": [
-      "Au lieu d'attaquer celui qui a pioché, {{affectedZombies.value}} attaquent {{affectedPlayers.label}}."
+      "Au lieu d'attaquer celui qui a pioché, {{affectedZombies.text}} {{affectedPlayers.text}}."
     ],
-    "possibleAffectedZombies": [
-      { "name": "zombieVal01", "value": "les zombies de valeur 1" },
-      { "name": "zombieVal03", "value": "les zombies de valeur 3" },
-      { "name": "zombieVal05", "value": "les zombies de valeur 5" },
-      { "name": "zombieVal08", "value": "les zombies de valeur 8" },
-      { "name": "zombieVal13", "value": "les zombies de valeur 13" },
-      { "name": "hiddenZombie", "value": "les zombies cachés" },
-      { "name": "zombieBoss", "value": "le Boss" }
+    "affectedZombies": [
+      {
+        "group": "zombies",
+        "text": "les zombies de valeur {{value}} attaquent",
+        "values": [
+          {
+            "name": "val01",
+            "value": "1"
+          },
+          {
+            "name": "val03",
+            "value": "3"
+          },
+          {
+            "name": "val05",
+            "value": "5"
+          },
+          {
+            "name": "val08",
+            "value": "8"
+          },
+          {
+            "name": "val13",
+            "value": "13"
+          }
+        ]
+      },
+      {
+        "group": "specialZombies",
+        "text": "les zombies {{value}} attaquent",
+        "values": [
+          {
+            "name": "hiddenZombie",
+            "value": "cachés"
+          }
+        ]
+      },
+      {
+        "group": "bossZombies",
+        "text": "{{value}} attaque",
+        "values": [
+          {
+            "name": "zombieBoss",
+            "value": "le Boss"
+          }
+        ]
+      }
     ],
-    "possibleAffectedPlayers": [
-      { "name": "weakestPlayer", "label": "le joueur ayant le moins de cartes" },
-      { "name": "strongestPlayer", "label": "le joueur ayant le plus de cartes" },
-      { "name": "leader", "label": "le chef de groupe" },
-      { "name": "lastPlayer", "label": "le dernier joueur" }
+    "affectedPlayers": [
+      {
+        "group": "playersCardsCount",
+        "text": "le joueur ayant {{value}} de cartes",
+        "values": [
+          {
+            "name": "weakestPlayer",
+            "value": "le moins"
+          },
+          {
+            "name": "strongestPlayer",
+            "value": "le plus"
+          }
+        ]
+      },
+      {
+        "group": "playersPosition",
+        "text": "le {{value}}",
+        "values": [
+          {
+            "name": "leader",
+            "value": "chef de groupe"
+          },
+          {
+            "name": "lastPlayer",
+            "value": "dernier joueur"
+          }
+        ]
+      }
     ]
   },
   {
@@ -85,21 +190,30 @@
       "short": "Rationnement"
     },
     "description": [
-      "Le joueur #{{playerPosition}} du groupe ne peut pas piocher de cartes survivant durant ce chapitre."
+      "{{affectedPlayers.text}} ne peut pas piocher de cartes survivant durant ce chapitre."
     ],
-    "possibleAffectedPlayers": [
-      { "name": "playerOne", "value": 1 },
-      { "name": "lastPlayer", "value": -1 },
-      { "name": "playerTwo", "value": 2 },
-      { "name": "playerThree", "value": 3 },
-      { "name": "playerFour", "value": 4 }
+    "affectedPlayers": [
+      {
+        "group": "playersPosition",
+        "text": "Le {{value}} du groupe",
+        "values": [
+          {
+            "name": "leader",
+            "value": "chef"
+          },
+          {
+            "name": "lastPlayer",
+            "value": "dernier joueur"
+          }
+        ]
+      }
     ]
   },
   {
     "name": "corruptedSupplies",
     "label": {
       "full": "Ravitaillement corrompu",
-      "short": "Ravit corr."
+      "short": "Ravit. corr."
     },
     "description": [
       "Une des caisses d'équipement contient un zombie caché au lieu d'un équipement."
