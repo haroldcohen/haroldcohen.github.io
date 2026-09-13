@@ -7,6 +7,13 @@
     },
     "description": [
       "Les zombies de valeur {{affectedZombies.value}} sont immunisés contre les armes blanches."
+    ],
+    "possibleAffectedZombies": [
+      { "name": "zombieVal01", "value": "1" },
+      { "name": "zombieVal03", "value": "3" },
+      { "name": "zombieVal05", "value": "5" },
+      { "name": "zombieVal08", "value": "8" },
+      { "name": "zombieVal13", "value": "13" }
     ]
   },
   {
@@ -17,6 +24,13 @@
     },
     "description": [
       "Les zombies de valeur {{affectedZombies.value}} tués par armes à feu explosent et contaminent le joueur suivant."
+    ],
+    "possibleAffectedZombies": [
+      { "name": "zombieVal01", "value": "1" },
+      { "name": "zombieVal03", "value": "3" },
+      { "name": "zombieVal05", "value": "5" },
+      { "name": "zombieVal08", "value": "8" },
+      { "name": "zombieVal13", "value": "13" }
     ]
   },
   {
@@ -27,6 +41,21 @@
     },
     "description": [
       "Au lieu d'attaquer celui qui a pioché, {{affectedZombies.value}} attaquent {{affectedPlayers.label}}."
+    ],
+    "possibleAffectedZombies": [
+      { "name": "zombieVal01", "value": "les zombies de valeur 1" },
+      { "name": "zombieVal03", "value": "les zombies de valeur 3" },
+      { "name": "zombieVal05", "value": "les zombies de valeur 5" },
+      { "name": "zombieVal08", "value": "les zombies de valeur 8" },
+      { "name": "zombieVal13", "value": "les zombies de valeur 13" },
+      { "name": "hiddenZombie", "value": "les zombies cachés" },
+      { "name": "zombieBoss", "value": "le Boss" }
+    ],
+    "possibleAffectedPlayers": [
+      { "name": "weakestPlayer", "label": "le joueur ayant le moins de cartes" },
+      { "name": "strongestPlayer", "label": "le joueur ayant le plus de cartes" },
+      { "name": "leader", "label": "le chef de groupe" },
+      { "name": "lastPlayer", "label": "le dernier joueur" }
     ]
   },
   {
@@ -57,6 +86,13 @@
     },
     "description": [
       "Le joueur #{{playerPosition}} du groupe ne peut pas piocher de cartes survivant durant ce chapitre."
+    ],
+    "possibleAffectedPlayers": [
+      { "name": "playerOne", "value": 1 },
+      { "name": "lastPlayer", "value": -1 },
+      { "name": "playerTwo", "value": 2 },
+      { "name": "playerThree", "value": 3 },
+      { "name": "playerFour", "value": 4 }
     ]
   },
   {
