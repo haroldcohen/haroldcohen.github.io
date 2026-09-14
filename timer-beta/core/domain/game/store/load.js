@@ -9,7 +9,7 @@ function fetchGame() {
             chapter.num,
             chapter.state,
             chapter.helpItems?.map((helpItem) => new HelpItem(helpItem.name)),
-            chapter.tributes?.map(() => new Tribute()),
+            chapter.tributes?.map((tribute) => new Tribute(tribute.name, tribute.parameters)),
         )),
         currentChapter,
     });

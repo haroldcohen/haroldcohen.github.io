@@ -3,5 +3,6 @@ function RollDiceOfFortune() {
     game.rollDiceOfFortune();
     saveGame(game);
 
-    dispatchDomainEvent('DiceOfFortuneWereRolled');
+    const chapter = game.chapters[game.currentChapter];
+    dispatchDomainEvent('DiceOfFortuneWereRolled', { chapterNum: chapter.num });
 }

@@ -123,6 +123,8 @@ onDomainEvent('ChapterWasLoaded', ({ chapter }) => {
     fitChapterBanner();
 });
 
+onDomainEvent('DiceOfFortuneWereRolled', renderSidebarHelpItems);
+onDomainEvent('DiceOfFortuneWereRolled', renderSidebarTributes);
 onDomainEvent('DiceOfFortuneWereRolled', () => {
     console.log(readGame());
 });
@@ -177,6 +179,8 @@ hordeTabBtn.addEventListener('click', () => setActiveSidebarTab('horde'));
 const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
 const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
 const tributeDataPromise = fetch('../../data/dice-of-fortune_tribute.json').then((res) => res.json());
+const helpDisplayDataPromise = fetch('../../data/dice-of-fortune/help/display.json').then((res) => res.json());
+const tributeDisplayDataPromise = fetch('../../data/dice-of-fortune/tribute/display.json').then((res) => res.json());
 
 // Chapter #1 always starts with no infected players; a future "start next chapter"
 // step will let players report the infected count so this can turn true from chapter 2 on.
@@ -345,21 +349,43 @@ function closeItemDetail() {
     timerView.hidden = false;
 }
 
-function renderSidebarHelpList(aggregated) {
-    sidebarHelpList.innerHTML = '';
+function renderSidebarHelpItems({ chapterNum }) {
+    const game = fetchGame();
+    const chapter = game.chapters.find((c) => c.num === chapterNum);
 
-    aggregated.forEach(({ item, count }) => {
-        const entry = { item, remaining: count };
+    const names = [...new Set(chapter.helpItems.map((helpItem) => helpItem.name))];
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'sidebar-tab-item';
-        btn.textContent = item.label.short;
-        btn.title = item.description.join('\n');
-        btn.addEventListener('click', () => showItemDetail(entry));
+    helpDisplayDataPromise.then((helpDisplayData) => {
+        sidebarHelpList.innerHTML = '';
+        names.forEach((name) => {
+            const display = helpDisplayData.find((entry) => entry.name === name);
 
-        entry.buttonEl = btn;
-        sidebarHelpList.appendChild(btn);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sidebar-tab-item';
+            btn.textContent = display.label.short;
+            btn.title = display.description.join('\n');
+            sidebarHelpList.appendChild(btn);
+        });
+    });
+}
+
+function renderSidebarTributes({ chapterNum }) {
+    const game = fetchGame();
+    const chapter = game.chapters.find((c) => c.num === chapterNum);
+
+    tributeDisplayDataPromise.then((tributeDisplayData) => {
+        sidebarHordeList.innerHTML = '';
+        chapter.tributes.forEach((tribute) => {
+            const display = tributeDisplayData.find((entry) => entry.name === tribute.name);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sidebar-tab-item';
+            btn.textContent = display.label.short;
+            btn.title = display.description.join('\n');
+            sidebarHordeList.appendChild(btn);
+        });
     });
 }
 
@@ -445,27 +471,15 @@ diceAnim.addEventListener('click', () => {
     diceAnim.style.pointerEvents = 'none';
     diceAnim.style.cursor = 'default';
     diceInstructions.hidden = true;
-    timerView.hidden = true;
-    diceResultView.hidden = false;
 
-    Promise.all([helpDataPromise, tributeDataPromise]).then(([helpData, tributeData]) => {
-        const grantedHelp = rollHelpItems(helpData);
-        const aggregatedHelp = aggregateHelpItems(grantedHelp);
-        lastAggregatedHelp = aggregatedHelp;
-        renderDiceResultList(aggregatedHelp);
-        renderSidebarHelpList(aggregatedHelp);
+    sidebarDiceView.hidden = true;
+    sidebarHelpView.hidden = false;
 
-        const obtainedSupplyCrateCount = grantedHelp.filter(isSupplyCrate).length;
-        const tributeResult = rollTribute(tributeData, {
-            contaminatedPlayer: infectedPlayersCount,
-            obtainedSupplyCrateCount,
-        });
-        activeTributeResult = tributeResult;
-        if (tributeResult) {
-            renderTextLines(tributeDescription, tributeResult.description);
-        }
-        renderSidebarHordeList(tributeResult);
-    });
+    tributeAcknowledged = true;
+    startBtn.disabled = false;
+    resetBtn.disabled = false;
+    penaltyBtn.disabled = false;
+    endChapterBtn.disabled = false;
 }, { once: true });
 
 nextBtn.addEventListener('click', () => {
@@ -539,10 +553,6 @@ resetBtn.addEventListener('click', () => {
     updateTimerDisplay();
     startBtn.textContent = 'Commencer';
     penaltyBtn.disabled = false;
-
-    if (lastAggregatedHelp) {
-        renderSidebarHelpList(lastAggregatedHelp);
-    }
 });
 
 penaltyBtn.addEventListener('click', () => {
