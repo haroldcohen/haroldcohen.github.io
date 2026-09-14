@@ -1,5 +1,10 @@
 class SupplyCrate {
-    constructor(name) {
+    constructor(name, content) {
         this.name = name;
+        this.content = content;
+    }
+
+    toDTO() {
+        return Object.freeze({ name: this.name, content: this.content });
     }
 }

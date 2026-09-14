@@ -1,10 +1,10 @@
 class Chapter {
-    // Supply crate is deliberately left out for now — it has its own ticket (DEA-6 story).
     static HELP_ITEM_ROLL_CHANCES = {
         campfire: 'HIGH',
         scout: 'MEDIUM',
         improvisedBarricade: 'MEDIUM',
         sparePart: 'LOW',
+        supplyCrate: 'HIGH',
     };
 
     static ROLL_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
@@ -14,6 +14,20 @@ class Chapter {
         scout: 1,
         improvisedBarricade: 1,
         sparePart: 1,
+        supplyCrate: 2,
+    };
+
+    static SUPPLY_CRATE_CONTENT_ROLL_CHANCES = {
+        shotgun: 'HIGH',
+        ak47: 'HIGH',
+        armor: 'MEDIUM',
+        machete: 'MEDIUM',
+        cure: 'LOW',
+    };
+
+    static SUPPLY_CRATE_CONTENT_AMMO_ROLL_CHANCES = {
+        shotgun: { 1: 'HIGH', 3: 'HIGH', 5: 'MEDIUM', 8: 'MEDIUM' },
+        ak47: { 5: 'HIGH', 8: 'HIGH', 13: 'MEDIUM' },
     };
 
     static TRIBUTE_ROLL_CHANCES = {
@@ -113,7 +127,21 @@ class Chapter {
 
             const name = Chapter.#pickWeightedName(eligibleNames, Chapter.HELP_ITEM_ROLL_CHANCES);
             grantedCounts.set(name, (grantedCounts.get(name) || 0) + 1);
-            this.helpItems.push(new HelpItem(name));
+
+            if (name === 'supplyCrate') {
+                const contentName = Chapter.#pickWeightedName(
+                    Object.keys(Chapter.SUPPLY_CRATE_CONTENT_ROLL_CHANCES),
+                    Chapter.SUPPLY_CRATE_CONTENT_ROLL_CHANCES
+                );
+                const content = { name: contentName };
+                const ammoRollChances = Chapter.SUPPLY_CRATE_CONTENT_AMMO_ROLL_CHANCES[contentName];
+                if (ammoRollChances) {
+                    content.ammo = Number(Chapter.#pickWeightedName(Object.keys(ammoRollChances), ammoRollChances));
+                }
+                this.helpItems.push(new SupplyCrate(name, content));
+            } else {
+                this.helpItems.push(new HelpItem(name));
+            }
         }
 
         const tributeNames = Object.keys(Chapter.TRIBUTE_ROLL_CHANCES);

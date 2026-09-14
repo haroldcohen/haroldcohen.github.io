@@ -3,12 +3,12 @@
     "name": "supplyCrate",
     "maxRollPerChapter": 2,
     "rollChances": "HIGH",
-    "possibleItems": [
+    "items": [
       {
         "name": "shotgun",
         "rollChances": "HIGH",
         "maxRollPerChapter": 2,
-        "possibleAmmoQt": [
+        "ammo": [
           {
             "qt": 1,
             "rollChances": "HIGH"
@@ -31,7 +31,7 @@
         "name": "ak47",
         "rollChances": "HIGH",
         "maxRollPerChapter": 2,
-        "possibleAmmoQt": [
+        "ammo": [
           {
             "qt": 5,
             "rollChances": "HIGH"

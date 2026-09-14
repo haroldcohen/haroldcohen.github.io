@@ -9,18 +9,18 @@
       "Contient de l'equipement.",
       "Le contenu est dévoilé au moment de l'ouverture."
     ],
-    "possibleItems": [
+    "items": [
       {
         "name": "shotgun",
         "contentDisplay": [
-          "Shotgun (Ammo : {{possibleAmmoQt.qt}}).",
+          "Shotgun (Ammo : {{ammo.qt}}).",
           "Boom Shakalata motherfuckers !"
         ]
       },
       {
         "name": "ak47",
         "contentDisplay": [
-          "AK-47 (Ammo : {{possibleAmmoQt.qt}}).",
+          "AK-47 (Ammo : {{ammo.qt}}).",
           "Fait presque autant de degats à l'estomac que la Vodka."
         ]
       },
