@@ -125,6 +125,8 @@ onDomainEvent('ChapterWasLoaded', ({ chapter }) => {
 
 onDomainEvent('DiceOfFortuneWereRolled', renderSidebarHelpItems);
 onDomainEvent('DiceOfFortuneWereRolled', renderSidebarTributes);
+onDomainEvent('DiceOfFortuneWereRolled', renderDiceResultSummary);
+onDomainEvent('DiceOfFortuneWereRolled', renderTributeSummary);
 onDomainEvent('DiceOfFortuneWereRolled', () => {
     console.log(readGame());
 });
@@ -149,6 +151,7 @@ const sidebarHordeList = document.getElementById('sidebarHordeList');
 const survivorTabBtn = document.getElementById('survivorTabBtn');
 const hordeTabBtn = document.getElementById('hordeTabBtn');
 const tributeView = document.getElementById('tributeView');
+const tributeDescription = document.getElementById('tributeDescription');
 const itemDetailView = document.getElementById('itemDetailView');
 const itemDetailHeading = document.getElementById('itemDetailHeading');
 const itemDetailBadge = document.getElementById('itemDetailBadge');
@@ -215,6 +218,60 @@ function renderDiceResultList(aggregated) {
         li.textContent = count > 1 ? `${item.label.full} x${count}` : item.label.full;
         li.title = item.description.join('\n');
         diceResultList.appendChild(li);
+    });
+}
+
+// Distinct names in the order they were first granted, each with how many copies were granted.
+function aggregateByName(items) {
+    const order = [];
+    const counts = new Map();
+    for (const item of items) {
+        if (!counts.has(item.name)) {
+            order.push(item.name);
+            counts.set(item.name, 0);
+        }
+        counts.set(item.name, counts.get(item.name) + 1);
+    }
+    return order.map((name) => ({ name, count: counts.get(name) }));
+}
+
+function renderDiceResultSummary({ chapterNum }) {
+    const game = fetchGame();
+    const chapter = game.chapters.find((c) => c.num === chapterNum);
+    const grantedCounts = aggregateByName(chapter.helpItems);
+
+    helpDisplayDataPromise.then((helpDisplayData) => {
+        const aggregated = grantedCounts.map(({ name, count }) => ({
+            item: helpDisplayData.find((entry) => entry.name === name),
+            count,
+        }));
+        renderDiceResultList(aggregated);
+    });
+}
+
+// Resolves a tribute parameter (e.g. "affectedZombies") to its display text: finds
+// which group the rolled value name belongs to, then fills that group's own {{value}}.
+function tributeParameterText(paramGroups, valueName) {
+    for (const group of paramGroups) {
+        const match = group.values.find((value) => value.name === valueName);
+        if (match) return group.text.replace('{{value}}', match.value);
+    }
+    return '';
+}
+
+function renderTributeSummary({ chapterNum }) {
+    const game = fetchGame();
+    const chapter = game.chapters.find((c) => c.num === chapterNum);
+    const [tribute] = chapter.tributes;
+
+    tributeDisplayDataPromise.then((tributeDisplayData) => {
+        const display = tributeDisplayData.find((entry) => entry.name === tribute.name);
+        const description = display.description.map((line) => (
+            Object.entries(tribute.parameters).reduce((text, [paramKey, valueName]) => (
+                text.replace(`{{${paramKey}.text}}`, tributeParameterText(display[paramKey], valueName))
+            ), line)
+        ));
+        renderPrimarySecondaryLines(tributeDescription, description);
     });
 }
 
@@ -407,9 +464,17 @@ itemDetailUseBtn.addEventListener('click', () => {
 
 itemDetailCloseBtn.addEventListener('click', closeItemDetail);
 
-function revealSidebarHelpView() {
+function showHelpItemsSummary() {
     sidebarDiceView.hidden = true;
     sidebarHelpView.hidden = false;
+    timerView.hidden = true;
+    diceResultView.hidden = false;
+}
+
+function showTributeSummary() {
+    diceResultView.hidden = true;
+    tributeView.hidden = false;
+    setActiveSidebarTab('horde');
 }
 
 diceAnim.addEventListener('click', () => {
@@ -419,36 +484,28 @@ diceAnim.addEventListener('click', () => {
     diceAnim.style.cursor = 'default';
     diceInstructions.hidden = true;
 
-    tributeAcknowledged = true;
-    startBtn.disabled = false;
-    resetBtn.disabled = false;
-    penaltyBtn.disabled = false;
-    endChapterBtn.disabled = false;
-
-    // Wait for the dice-of-fortune animation to finish playing before swapping
-    // the sidebar to the help/tribute view, so players see the roll complete.
+    // Wait for the dice-of-fortune animation to finish playing before showing
+    // the roll results, so players see the roll complete.
     if (diceAnim.dotLottie) {
         diceAnim.dotLottie.addEventListener('complete', function onComplete() {
             diceAnim.dotLottie.removeEventListener('complete', onComplete);
-            revealSidebarHelpView();
+            showHelpItemsSummary();
         });
         diceAnim.dotLottie.play();
     } else {
-        revealSidebarHelpView();
+        showHelpItemsSummary();
     }
 }, { once: true });
 
 nextBtn.addEventListener('click', () => {
-    sidebarDiceView.hidden = true;
-    sidebarHelpView.hidden = false;
-    diceResultView.hidden = true;
-    tributeView.hidden = false;
+    showTributeSummary();
 }, { once: true });
 
 okBtn.addEventListener('click', () => {
     tributeAcknowledged = true;
     tributeView.hidden = true;
     timerView.hidden = false;
+    setActiveSidebarTab('survivor');
     startBtn.disabled = false;
     resetBtn.disabled = false;
     penaltyBtn.disabled = false;
