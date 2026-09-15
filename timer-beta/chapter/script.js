@@ -149,7 +149,6 @@ const sidebarHordeList = document.getElementById('sidebarHordeList');
 const survivorTabBtn = document.getElementById('survivorTabBtn');
 const hordeTabBtn = document.getElementById('hordeTabBtn');
 const tributeView = document.getElementById('tributeView');
-const tributeDescription = document.getElementById('tributeDescription');
 const itemDetailView = document.getElementById('itemDetailView');
 const itemDetailHeading = document.getElementById('itemDetailHeading');
 const itemDetailBadge = document.getElementById('itemDetailBadge');
@@ -177,8 +176,6 @@ survivorTabBtn.addEventListener('click', () => setActiveSidebarTab('survivor'));
 hordeTabBtn.addEventListener('click', () => setActiveSidebarTab('horde'));
 
 const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
-const helpDataPromise = fetch('../../data/dice-of-fortune_help.json').then((res) => res.json());
-const tributeDataPromise = fetch('../../data/dice-of-fortune_tribute.json').then((res) => res.json());
 const helpDisplayDataPromise = fetch('../../data/dice-of-fortune/help/display.json').then((res) => res.json());
 const tributeDisplayDataPromise = fetch('../../data/dice-of-fortune/tribute/display.json').then((res) => res.json());
 
@@ -197,34 +194,6 @@ function pickWeighted(pool) {
     return pool[pool.length - 1];
 }
 
-function rollHelpItems(helpData) {
-    const spawnCounts = new Map(helpData.map((item) => [item.name, 0]));
-    const itemCount = 1 + Math.floor(Math.random() * 3);
-    const granted = [];
-
-    for (let i = 0; i < itemCount; i++) {
-        const pool = helpData.filter((item) => spawnCounts.get(item.name) < item.maxSpawnPerChapter);
-        const picked = pickWeighted(pool);
-        if (!picked) break;
-        spawnCounts.set(picked.name, spawnCounts.get(picked.name) + 1);
-        granted.push(picked);
-    }
-    return granted;
-}
-
-function aggregateHelpItems(items) {
-    const order = [];
-    const counts = new Map();
-    for (const item of items) {
-        if (!counts.has(item.name)) {
-            order.push(item);
-            counts.set(item.name, 0);
-        }
-        counts.set(item.name, counts.get(item.name) + 1);
-    }
-    return order.map((item) => ({ item, count: counts.get(item.name) }));
-}
-
 // Condition keys follow "min<CtxKey>" (e.g. minObtainedSupplyCrateCount reads ctx.obtainedSupplyCrateCount);
 // this keeps new min-threshold conditions data-only, no code changes needed to add one.
 function conditionCtxKey(conditionKey) {
@@ -237,32 +206,6 @@ function conditionsMet(conditions, ctx) {
     return conditions.every((condition) => (
         Object.entries(condition).every(([key, threshold]) => (ctx[conditionCtxKey(key)] || 0) >= threshold)
     ));
-}
-
-function rollTribute(tributeData, ctx) {
-    const pool = tributeData.filter((item) => conditionsMet(item.spawnConditions, ctx));
-    const picked = pickWeighted(pool);
-    if (!picked) return null;
-
-    const substitutions = [];
-    if (picked.possibleAffectedZombies) {
-        const rolledZombie = pickWeighted(picked.possibleAffectedZombies);
-        substitutions.push(['{{affectedZombies.value}}', rolledZombie.value]);
-    }
-    if (picked.possibleAffectedPlayers) {
-        const rolledAffectedPlayer = pickWeighted(picked.possibleAffectedPlayers);
-        substitutions.push(['{{affectedPlayers.label}}', rolledAffectedPlayer.label]);
-    }
-    if (picked.possiblePlayerPositions) {
-        const rolledPlayerPosition = pickWeighted(picked.possiblePlayerPositions);
-        substitutions.push(['{{playerPosition}}', rolledPlayerPosition.value]);
-    }
-
-    const description = picked.description.map((line) => (
-        substitutions.reduce((text, [placeholder, value]) => text.replace(placeholder, value), line)
-    ));
-
-    return { item: picked, description };
 }
 
 function renderDiceResultList(aggregated) {
@@ -464,22 +407,35 @@ itemDetailUseBtn.addEventListener('click', () => {
 
 itemDetailCloseBtn.addEventListener('click', closeItemDetail);
 
+function revealSidebarHelpView() {
+    sidebarDiceView.hidden = true;
+    sidebarHelpView.hidden = false;
+}
+
 diceAnim.addEventListener('click', () => {
     RollDiceOfFortune();
 
-    diceAnim.dotLottie?.play();
     diceAnim.style.pointerEvents = 'none';
     diceAnim.style.cursor = 'default';
     diceInstructions.hidden = true;
-
-    sidebarDiceView.hidden = true;
-    sidebarHelpView.hidden = false;
 
     tributeAcknowledged = true;
     startBtn.disabled = false;
     resetBtn.disabled = false;
     penaltyBtn.disabled = false;
     endChapterBtn.disabled = false;
+
+    // Wait for the dice-of-fortune animation to finish playing before swapping
+    // the sidebar to the help/tribute view, so players see the roll complete.
+    if (diceAnim.dotLottie) {
+        diceAnim.dotLottie.addEventListener('complete', function onComplete() {
+            diceAnim.dotLottie.removeEventListener('complete', onComplete);
+            revealSidebarHelpView();
+        });
+        diceAnim.dotLottie.play();
+    } else {
+        revealSidebarHelpView();
+    }
 }, { once: true });
 
 nextBtn.addEventListener('click', () => {
