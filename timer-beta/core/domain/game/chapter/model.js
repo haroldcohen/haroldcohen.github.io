@@ -138,7 +138,8 @@ class Chapter {
                 if (ammoRollChances) {
                     content.ammo = Number(Chapter.#pickWeightedName(Object.keys(ammoRollChances), ammoRollChances));
                 }
-                this.helpItems.push(new SupplyCrate(name, content));
+                const id = grantedCounts.get(name) - 1;
+                this.helpItems.push(new SupplyCrate(name, content, id));
             } else {
                 this.helpItems.push(new HelpItem(name));
             }
@@ -156,6 +157,24 @@ class Chapter {
             }
         }
         this.tributes.push(tribute);
+    }
+
+    useHelpItem(itemName) {
+        if (this.state !== CHAPTER_STATE.RUNNING && this.state !== CHAPTER_STATE.PAUSED) {
+            throw new Error('Help items can only be used while the chapter is running or paused.');
+        }
+
+        const helpItem = this.helpItems.find((item) => item.name === itemName);
+        helpItem.use();
+    }
+
+    openSupplyCrate(id) {
+        if (this.state !== CHAPTER_STATE.RUNNING && this.state !== CHAPTER_STATE.PAUSED) {
+            throw new Error('A supply crate can only be opened while the chapter is running or paused.');
+        }
+
+        const crate = this.helpItems.find((item) => item.name === 'supplyCrate' && item.id === id);
+        crate.use();
     }
 
     static #pickWeightedName(names, rollChances) {

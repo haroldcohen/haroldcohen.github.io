@@ -127,6 +127,8 @@ onDomainEvent('DiceOfFortuneWereRolled', renderSidebarHelpItems);
 onDomainEvent('DiceOfFortuneWereRolled', renderSidebarTributes);
 onDomainEvent('DiceOfFortuneWereRolled', renderDiceResultSummary);
 onDomainEvent('DiceOfFortuneWereRolled', renderTributeSummary);
+onDomainEvent('HelpItemHasBeenUsed', handleHelpItemHasBeenUsed);
+onDomainEvent('SupplyCrateHasBeenOpen', handleSupplyCrateHasBeenOpen);
 onDomainEvent('DiceOfFortuneWereRolled', () => {
     console.log(readGame());
 });
@@ -261,24 +263,72 @@ function renderItemDetailPanel(details) {
     renderPrimarySecondaryLines(itemDetailDescription, details.description);
     itemDetailUseBtn.textContent = details.useButtonText || '';
     itemDetailUseBtn.hidden = !details.useButtonText;
+    itemDetailCloseBtn.hidden = false;
     itemDetailCloseBtn.classList.toggle('full-width', !details.useButtonText);
     timerView.hidden = true;
     itemDetailView.hidden = false;
 }
 
+// itemDetailUseBtn is shared across every detail panel, so only one "use" handler
+// can be live on it at a time — swap it out instead of stacking listeners.
+let itemDetailUseHandler = null;
+
+function setItemDetailUseHandler(handler) {
+    if (itemDetailUseHandler) {
+        itemDetailUseBtn.removeEventListener('click', itemDetailUseHandler);
+    }
+    itemDetailUseHandler = handler;
+    if (handler) {
+        itemDetailUseBtn.addEventListener('click', handler);
+    }
+}
+
 async function showHelpItemDetails(itemName, chapterNum) {
     const details = await DisplayHelpItemDetails(itemName, chapterNum);
     renderItemDetailPanel(details);
+    setItemDetailUseHandler(details.isCrate ? () => OpenSupplyCrate() : () => UseHelpItem(itemName));
 }
 
 async function showTributeDetails(chapterNum) {
     const details = await DisplayTributeDetails(chapterNum);
     renderItemDetailPanel(details);
+    setItemDetailUseHandler(null);
 }
 
 function closeItemDetail() {
+    document.querySelectorAll('.sidebar-tab-item.selected').forEach((el) => el.classList.remove('selected'));
     itemDetailView.hidden = true;
     timerView.hidden = false;
+}
+
+// Removes a help item's sidebar entry once every granted copy of it has been
+// used/opened — for a cap-1 item that's always right away, for the supply
+// crate only once the last one has been opened.
+function removeSidebarHelpItemIfExhausted(itemName, chapterNum) {
+    const game = fetchGame();
+    const chapter = game.chapters.find((c) => c.num === chapterNum);
+    const remaining = chapter.helpItems.filter((item) => item.name === itemName && !item.hasBeenUsed).length;
+    if (remaining === 0) {
+        const btn = sidebarHelpList.querySelector(`[data-item-name="${itemName}"]`);
+        if (btn) btn.remove();
+    }
+}
+
+// Only ever reacts to a help item actually having been used — if UseHelpItem
+// couldn't use it, no event fires and the sidebar/panel are left untouched.
+function handleHelpItemHasBeenUsed({ itemName, chapterNum }) {
+    removeSidebarHelpItemIfExhausted(itemName, chapterNum);
+    closeItemDetail();
+}
+
+// Only ever reacts to a crate actually having been opened — if OpenSupplyCrate
+// couldn't open one, no event fires and the panel is left showing "Ouvrir".
+function handleSupplyCrateHasBeenOpen({ chapterNum, description }) {
+    renderPrimarySecondaryLines(itemDetailDescription, description);
+    itemDetailUseBtn.textContent = 'OK';
+    itemDetailCloseBtn.hidden = true;
+    setItemDetailUseHandler(closeItemDetail);
+    removeSidebarHelpItemIfExhausted('supplyCrate', chapterNum);
 }
 
 function renderSidebarHelpItems({ chapterNum }) {
@@ -297,6 +347,11 @@ function renderSidebarHelpItems({ chapterNum }) {
             btn.className = 'sidebar-tab-item';
             btn.textContent = display.label.short;
             btn.title = display.description.join('\n');
+            btn.dataset.itemName = name;
+            // Disabled until the roll summary (help items, then tribute) has been
+            // closed — clicking through it too early would show the details panel
+            // on top of the still-open summary.
+            btn.disabled = true;
             btn.addEventListener('click', () => {
                 sidebarHelpList.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
                 btn.classList.add('selected');
@@ -321,6 +376,10 @@ function renderSidebarTributes({ chapterNum }) {
             btn.className = 'sidebar-tab-item';
             btn.textContent = display.label.short;
             btn.title = display.description.join('\n');
+            // Disabled until the roll summary (help items, then tribute) has been
+            // closed — clicking through it too early would show the details panel
+            // on top of the still-open summary.
+            btn.disabled = true;
             btn.addEventListener('click', () => {
                 sidebarHordeList.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
                 btn.classList.add('selected');
@@ -378,6 +437,8 @@ okBtn.addEventListener('click', () => {
     resetBtn.disabled = false;
     penaltyBtn.disabled = false;
     endChapterBtn.disabled = false;
+    sidebarHelpList.querySelectorAll('.sidebar-tab-item').forEach((btn) => { btn.disabled = false; });
+    sidebarHordeList.querySelectorAll('.sidebar-tab-item').forEach((btn) => { btn.disabled = false; });
 }, { once: true });
 
 function cancelPendingStart() {

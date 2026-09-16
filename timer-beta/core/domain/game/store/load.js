@@ -8,7 +8,11 @@ function fetchGame() {
         chapters: chapters?.map((chapter) => new Chapter(
             chapter.num,
             chapter.state,
-            chapter.helpItems?.map((helpItem) => new HelpItem(helpItem.name)),
+            chapter.helpItems?.map((helpItem) => (
+                helpItem.name === 'supplyCrate'
+                    ? new SupplyCrate(helpItem.name, helpItem.content, helpItem.id, helpItem.hasBeenUsed)
+                    : new HelpItem(helpItem.name, helpItem.hasBeenUsed)
+            )),
             chapter.tributes?.map((tribute) => new Tribute(tribute.name, tribute.parameters)),
         )),
         currentChapter,

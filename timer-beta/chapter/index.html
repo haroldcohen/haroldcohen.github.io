@@ -163,6 +163,13 @@
             color: #FFCC00;
         }
 
+        .sidebar-tab-item:disabled {
+            background-color: transparent;
+            color: #454343;
+            border: 2px solid #454343;
+            cursor: default;
+        }
+
         .dice-instructions {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
@@ -475,6 +482,8 @@
     <script src="../core/use-cases/game/chapter/roll-dice-of-fortune/handler.js"></script>
     <script src="../core/use-cases/game/chapter/display-help-item-details/handler.js"></script>
     <script src="../core/use-cases/game/chapter/display-tribute-details/handler.js"></script>
+    <script src="../core/use-cases/game/chapter/use-help-item/handler.js"></script>
+    <script src="../core/use-cases/game/chapter/open-supply-crate/handler.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

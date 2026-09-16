@@ -76,4 +76,23 @@ class Game {
         const chapter = this.chapters[this.currentChapter];
         chapter.rollDiceOfFortune();
     }
+
+    useHelpItem(itemName) {
+        const chapter = this.chapters[this.currentChapter];
+        chapter.useHelpItem(itemName);
+    }
+
+    openSupplyCrate(id) {
+        const chapter = this.chapters[this.currentChapter];
+        chapter.openSupplyCrate(id);
+    }
+
+    toDTO() {
+        return Object.freeze({
+            state: this.state,
+            settings: this.settings,
+            chapters: this.chapters.map((chapter) => chapter.toDTO()),
+            currentChapter: this.currentChapter,
+        });
+    }
 }
