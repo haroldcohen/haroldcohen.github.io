@@ -146,7 +146,6 @@ class Chapter {
 
         const tributeNames = Object.keys(Chapter.TRIBUTE_ROLL_CHANCES);
         new CorruptedSuppliesTributeFilter(this.toDTO()).filter(tributeNames);
-        console.log(tributeNames); // TEMP: check filtered tribute names
 
         const tributeName = Chapter.#pickWeightedName(tributeNames, Chapter.TRIBUTE_ROLL_CHANCES);
         const tribute = new Tribute(tributeName);

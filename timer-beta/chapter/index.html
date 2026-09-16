@@ -157,7 +157,8 @@
             letter-spacing: -0.03em;
         }
 
-        .sidebar-tab-item:hover {
+        .sidebar-tab-item:hover,
+        .sidebar-tab-item.selected {
             background-color: #000000;
             color: #FFCC00;
         }
@@ -472,6 +473,8 @@
     <script src="../core/domain/game/chapter/model.js"></script>
     <script src="../core/use-cases/game/chapter/load-chapter/handler.js"></script>
     <script src="../core/use-cases/game/chapter/roll-dice-of-fortune/handler.js"></script>
+    <script src="../core/use-cases/game/chapter/display-help-item-details/handler.js"></script>
+    <script src="../core/use-cases/game/chapter/display-tribute-details/handler.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -178,38 +178,8 @@ function setActiveSidebarTab(tab) {
 survivorTabBtn.addEventListener('click', () => setActiveSidebarTab('survivor'));
 hordeTabBtn.addEventListener('click', () => setActiveSidebarTab('horde'));
 
-const SPAWN_CHANCE_WEIGHTS = { VERY_HIGH: 90, HIGH: 60, MEDIUM: 30, LOW: 10 };
 const helpDisplayDataPromise = fetch('../../data/dice-of-fortune/help/display.json').then((res) => res.json());
 const tributeDisplayDataPromise = fetch('../../data/dice-of-fortune/tribute/display.json').then((res) => res.json());
-
-// Chapter #1 always starts with no infected players; a future "start next chapter"
-// step will let players report the infected count so this can turn true from chapter 2 on.
-const infectedPlayersCount = 0;
-
-function pickWeighted(pool) {
-    const total = pool.reduce((sum, item) => sum + (SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0), 0);
-    if (total <= 0) return null;
-    let roll = Math.random() * total;
-    for (const item of pool) {
-        roll -= SPAWN_CHANCE_WEIGHTS[item.spawnChances] || 0;
-        if (roll <= 0) return item;
-    }
-    return pool[pool.length - 1];
-}
-
-// Condition keys follow "min<CtxKey>" (e.g. minObtainedSupplyCrateCount reads ctx.obtainedSupplyCrateCount);
-// this keeps new min-threshold conditions data-only, no code changes needed to add one.
-function conditionCtxKey(conditionKey) {
-    const stripped = conditionKey.slice(3);
-    return stripped.charAt(0).toLowerCase() + stripped.slice(1);
-}
-
-function conditionsMet(conditions, ctx) {
-    if (!conditions) return true;
-    return conditions.every((condition) => (
-        Object.entries(condition).every(([key, threshold]) => (ctx[conditionCtxKey(key)] || 0) >= threshold)
-    ));
-}
 
 function renderDiceResultList(aggregated) {
     diceResultList.innerHTML = '';
@@ -275,16 +245,6 @@ function renderTributeSummary({ chapterNum }) {
     });
 }
 
-function renderTextLines(container, lines) {
-    container.innerHTML = '';
-    lines.forEach((line) => {
-        const p = document.createElement('p');
-        p.className = 'sort-description';
-        p.textContent = line;
-        container.appendChild(p);
-    });
-}
-
 function renderPrimarySecondaryLines(container, lines) {
     container.innerHTML = '';
     lines.forEach((line, index) => {
@@ -295,56 +255,28 @@ function renderPrimarySecondaryLines(container, lines) {
     });
 }
 
-function isCrate(item) {
-    return !!item.possibleItems;
-}
-
-function useVerb(item) {
-    return isCrate(item) ? 'Ouvrir' : 'Utiliser';
-}
-
-function pluralize(count, singular, plural) {
-    return count > 1 ? plural : singular;
-}
-
-let currentDetailEntry = null;
-let tributeAcknowledged = false;
-let chapterStarted = false;
-let lastAggregatedHelp = null;
-let activeTributeResult = null;
-let openedSupplyCrateCount = 0;
-let corruptedSuppliesTriggered = false;
-
-function showItemDetail(entry) {
-    if (!tributeAcknowledged) return;
-
-    currentDetailEntry = entry;
-    itemDetailBadge.textContent = 'Aide';
-    itemDetailHeading.textContent = entry.item.label.full;
-    renderPrimarySecondaryLines(itemDetailDescription, entry.item.description);
-    itemDetailUseBtn.textContent = `${useVerb(entry.item)} (${entry.remaining} ${pluralize(entry.remaining, 'restante', 'restantes')})`;
-    itemDetailUseBtn.disabled = !chapterStarted;
-    itemDetailUseBtn.hidden = false;
-    itemDetailCloseBtn.classList.remove('full-width');
+function renderItemDetailPanel(details) {
+    itemDetailHeading.textContent = details.heading;
+    itemDetailBadge.textContent = details.badge;
+    renderPrimarySecondaryLines(itemDetailDescription, details.description);
+    itemDetailUseBtn.textContent = details.useButtonText || '';
+    itemDetailUseBtn.hidden = !details.useButtonText;
+    itemDetailCloseBtn.classList.toggle('full-width', !details.useButtonText);
     timerView.hidden = true;
     itemDetailView.hidden = false;
 }
 
-function showTributeDetail(tributeResult) {
-    if (!tributeAcknowledged) return;
+async function showHelpItemDetails(itemName, chapterNum) {
+    const details = await DisplayHelpItemDetails(itemName, chapterNum);
+    renderItemDetailPanel(details);
+}
 
-    currentDetailEntry = null;
-    itemDetailBadge.textContent = 'Tribut';
-    itemDetailHeading.textContent = tributeResult.item.label.full;
-    renderPrimarySecondaryLines(itemDetailDescription, tributeResult.description);
-    itemDetailUseBtn.hidden = true;
-    itemDetailCloseBtn.classList.add('full-width');
-    timerView.hidden = true;
-    itemDetailView.hidden = false;
+async function showTributeDetails(chapterNum) {
+    const details = await DisplayTributeDetails(chapterNum);
+    renderItemDetailPanel(details);
 }
 
 function closeItemDetail() {
-    currentDetailEntry = null;
     itemDetailView.hidden = true;
     timerView.hidden = false;
 }
@@ -365,6 +297,11 @@ function renderSidebarHelpItems({ chapterNum }) {
             btn.className = 'sidebar-tab-item';
             btn.textContent = display.label.short;
             btn.title = display.description.join('\n');
+            btn.addEventListener('click', () => {
+                sidebarHelpList.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+                btn.classList.add('selected');
+                showHelpItemDetails(name, chapterNum);
+            });
             sidebarHelpList.appendChild(btn);
         });
     });
@@ -384,83 +321,15 @@ function renderSidebarTributes({ chapterNum }) {
             btn.className = 'sidebar-tab-item';
             btn.textContent = display.label.short;
             btn.title = display.description.join('\n');
+            btn.addEventListener('click', () => {
+                sidebarHordeList.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+                btn.classList.add('selected');
+                showTributeDetails(chapterNum);
+            });
             sidebarHordeList.appendChild(btn);
         });
     });
 }
-
-function renderSidebarHordeList(tributeResult) {
-    sidebarHordeList.innerHTML = '';
-    if (!tributeResult) return;
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'sidebar-tab-item';
-    btn.textContent = tributeResult.item.label.short;
-    btn.title = tributeResult.description.join('\n');
-    btn.addEventListener('click', () => showTributeDetail(tributeResult));
-
-    sidebarHordeList.appendChild(btn);
-}
-
-function isSupplyCrate(item) {
-    return item.name === 'supplyCrate';
-}
-
-function corruptedSuppliesTriggerMet() {
-    return activeTributeResult
-        && activeTributeResult.item.name === 'corruptedSupplies'
-        && !corruptedSuppliesTriggered
-        && conditionsMet(activeTributeResult.item.triggerConditions, { openedSupplyCrateCount });
-}
-
-function openCrate(entry) {
-    let lines;
-
-    if (isSupplyCrate(entry.item) && corruptedSuppliesTriggerMet()) {
-        corruptedSuppliesTriggered = true;
-        lines = activeTributeResult.item.contentDisplay;
-    } else {
-        const rolledContent = pickWeighted(entry.item.possibleItems);
-        lines = rolledContent.contentDisplay;
-
-        if (rolledContent.possibleAmmoQt) {
-            const rolledAmmo = pickWeighted(rolledContent.possibleAmmoQt);
-            lines = lines.map((line) => line.replace('{{possibleAmmoQt.qt}}', rolledAmmo.qt));
-        }
-    }
-
-    if (isSupplyCrate(entry.item)) {
-        openedSupplyCrateCount += 1;
-    }
-
-    entry.remaining -= 1;
-    if (entry.remaining <= 0) {
-        entry.buttonEl.remove();
-    }
-
-    renderPrimarySecondaryLines(itemDetailDescription, lines);
-    itemDetailUseBtn.hidden = true;
-    itemDetailCloseBtn.classList.add('full-width');
-}
-
-itemDetailUseBtn.addEventListener('click', () => {
-    if (!currentDetailEntry) return;
-
-    if (isCrate(currentDetailEntry.item)) {
-        openCrate(currentDetailEntry);
-        return;
-    }
-
-    currentDetailEntry.remaining -= 1;
-
-    if (currentDetailEntry.remaining <= 0) {
-        currentDetailEntry.buttonEl.remove();
-        closeItemDetail();
-    } else {
-        itemDetailUseBtn.textContent = `${useVerb(currentDetailEntry.item)} (${currentDetailEntry.remaining} ${pluralize(currentDetailEntry.remaining, 'restante', 'restantes')})`;
-    }
-});
 
 itemDetailCloseBtn.addEventListener('click', closeItemDetail);
 
@@ -502,7 +371,6 @@ nextBtn.addEventListener('click', () => {
 }, { once: true });
 
 okBtn.addEventListener('click', () => {
-    tributeAcknowledged = true;
     tributeView.hidden = true;
     timerView.hidden = false;
     setActiveSidebarTab('survivor');
@@ -533,8 +401,6 @@ startBtn.addEventListener('click', () => {
         startBtn.textContent = 'Commencer';
         return;
     }
-
-    chapterStarted = true;
 
     if (!isRunning) {
         if (timeRemaining === TOTAL_TIME) {
