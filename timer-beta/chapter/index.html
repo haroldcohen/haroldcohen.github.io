@@ -194,18 +194,25 @@
             min-height: 0;
         }
 
+        .timer-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 2vw, 24px);
+            padding: clamp(8px, 1.5vw, 20px) clamp(12px, 2vw, 24px) clamp(16px, 4vw, 48px);
+        }
+
         .timer-area {
             flex: 1;
+            min-width: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: clamp(16px, 4vw, 48px) clamp(12px, 2vw, 24px);
         }
 
         .timer-display {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: clamp(3rem, 13vw, 10rem);
+            font-size: clamp(3rem, 12vw, 9rem);
             color: #FFCC00;
             line-height: 1;
             white-space: nowrap;
@@ -218,16 +225,22 @@
             text-align: center;
         }
 
-        .controls {
+        .secondary-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: auto;
             padding: 0 clamp(12px, 2vw, 24px) clamp(12px, 2vw, 16px);
             gap: clamp(8px, 1.5vw, 16px);
         }
 
+        .contamination-tracker-placeholder {
+            flex: 1;
+        }
+
         .controls-left {
             display: flex;
+            flex-direction: column;
             gap: clamp(8px, 1.5vw, 16px);
         }
 
@@ -420,16 +433,19 @@
         </div>
         <div class="timer-panel">
             <div id="timerView">
-                <div class="timer-area">
-                    <div class="timer-display">
-                        <span id="minutes">20</span>:<span id="seconds">00</span>:<span id="centis">00</span>
-                    </div>
-                </div>
-                <div class="controls">
+                <div class="timer-row">
                     <div class="controls-left">
                         <button id="startBtn" disabled>Commencer</button>
                         <button id="resetBtn" disabled>Reset</button>
                     </div>
+                    <div class="timer-area">
+                        <div class="timer-display">
+                            <span id="minutes">20</span>:<span id="seconds">00</span>:<span id="centis">00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="secondary-row">
+                    <div class="contamination-tracker-placeholder"></div>
                     <button id="penaltyBtn" disabled>Penalite</button>
                 </div>
                 <div class="end-chapter-row">
