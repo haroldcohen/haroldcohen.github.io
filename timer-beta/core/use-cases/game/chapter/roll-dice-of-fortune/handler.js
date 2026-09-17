@@ -1,8 +1,13 @@
 function RollDiceOfFortune() {
     const game = fetchGame();
-    game.rollDiceOfFortune();
-    saveGame(game);
+    let chapter;
 
-    const chapter = game.chapters[game.currentChapter];
+    try {
+        chapter = game.rollDiceOfFortune();
+    } catch {
+        return;
+    }
+
+    saveGame(game);
     dispatchDomainEvent('DiceOfFortuneWereRolled', { chapterNum: chapter.num });
 }

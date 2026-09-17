@@ -1,6 +1,7 @@
 function LoadChapter() {
     const game = fetchGame();
-    game.loadChapter();
+    const chapter = game.loadChapter();
 
-    dispatchDomainEvent('ChapterWasLoaded', { chapter: game.chapters[game.currentChapter] });
+    saveGame(game);
+    dispatchDomainEvent('ChapterWasLoaded', { chapter });
 }

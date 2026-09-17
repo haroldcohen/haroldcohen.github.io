@@ -69,22 +69,32 @@ class Game {
 
     loadChapter() {
         const chapter = this.chapters[this.currentChapter];
-        chapter.load();
+        chapter.load(this.settings.difficulty);
+        return chapter;
     }
 
     rollDiceOfFortune() {
         const chapter = this.chapters[this.currentChapter];
         chapter.rollDiceOfFortune();
+        return chapter;
     }
 
     useHelpItem(itemName) {
         const chapter = this.chapters[this.currentChapter];
         chapter.useHelpItem(itemName);
+        return chapter;
     }
 
     openSupplyCrate(id) {
         const chapter = this.chapters[this.currentChapter];
         chapter.openSupplyCrate(id);
+        return chapter;
+    }
+
+    startChapter() {
+        const chapter = this.chapters[this.currentChapter];
+        chapter.start();
+        return chapter;
     }
 
     toDTO() {

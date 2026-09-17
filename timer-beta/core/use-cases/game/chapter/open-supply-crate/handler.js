@@ -1,16 +1,15 @@
 function OpenSupplyCrate(id) {
     const game = fetchGame();
+    let chapter;
 
     try {
-        game.openSupplyCrate(id);
+        chapter = game.openSupplyCrate(id);
     } catch {
         return;
     }
 
     saveGame(game);
 
-    const gameDTO = game.toDTO();
-    const chapter = gameDTO.chapters[gameDTO.currentChapter];
     const crate = chapter.helpItems.find((item) => item.name === 'supplyCrate' && item.id === id);
 
     fetch('../../data/dice-of-fortune/help/display.json')

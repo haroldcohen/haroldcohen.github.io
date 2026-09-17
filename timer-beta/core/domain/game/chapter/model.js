@@ -1,4 +1,10 @@
 class Chapter {
+    static DIFFICULTY_MINUTES = {
+        facile: 20,
+        normal: 15,
+        difficile: 10,
+    };
+
     static HELP_ITEM_ROLL_CHANCES = {
         campfire: 'HIGH',
         scout: 'MEDIUM',
@@ -101,18 +107,29 @@ class Chapter {
         },
     };
 
-    constructor(num, state = CHAPTER_STATE.NOT_STARTED, helpItems = [], tributes = []) {
+    constructor(num, state = CHAPTER_STATE.NOT_STARTED, helpItems = [], tributes = [], duration = null, diceOfFortuneWereRolled = false) {
         this.num = num;
         this.state = state;
         this.helpItems = helpItems;
         this.tributes = tributes;
+        this.duration = duration;
+        this.diceOfFortuneWereRolled = diceOfFortuneWereRolled;
     }
 
-    load() {
+    load(difficulty) {
         this.state = CHAPTER_STATE.LOADED;
+        this.#computeAndSetTimerDuration(difficulty);
+    }
+
+    #computeAndSetTimerDuration(difficulty) {
+        this.duration = Chapter.DIFFICULTY_MINUTES[difficulty] * 60 * 100;
     }
 
     rollDiceOfFortune() {
+        if (this.diceOfFortuneWereRolled) {
+            throw new Error('The dice of fortune have already been rolled for this chapter.');
+        }
+
         const itemCount = 1 + Math.floor(Math.random() * 3);
         const grantedCounts = new Map();
         for (const helpItem of this.helpItems) {
@@ -157,6 +174,15 @@ class Chapter {
             }
         }
         this.tributes.push(tribute);
+        this.diceOfFortuneWereRolled = true;
+    }
+
+    start() {
+        if (!this.diceOfFortuneWereRolled) {
+            throw new Error('The chapter can only be started once the dice of fortune have been rolled.');
+        }
+
+        this.state = CHAPTER_STATE.RUNNING;
     }
 
     useHelpItem(itemName) {
@@ -203,6 +229,8 @@ class Chapter {
             state: this.state,
             helpItems: this.helpItems.map((helpItem) => helpItem.toDTO()),
             tributes: this.tributes,
+            duration: this.duration,
+            diceOfFortuneWereRolled: this.diceOfFortuneWereRolled,
         });
     }
 }

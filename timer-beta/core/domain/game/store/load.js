@@ -14,6 +14,8 @@ function fetchGame() {
                     : new HelpItem(helpItem.name, helpItem.hasBeenUsed)
             )),
             chapter.tributes?.map((tribute) => new Tribute(tribute.name, tribute.parameters)),
+            chapter.duration,
+            chapter.diceOfFortuneWereRolled,
         )),
         currentChapter,
     });

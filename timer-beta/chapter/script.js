@@ -127,11 +127,11 @@ onDomainEvent('DiceOfFortuneWereRolled', renderSidebarHelpItems);
 onDomainEvent('DiceOfFortuneWereRolled', renderSidebarTributes);
 onDomainEvent('DiceOfFortuneWereRolled', renderDiceResultSummary);
 onDomainEvent('DiceOfFortuneWereRolled', renderTributeSummary);
-onDomainEvent('HelpItemHasBeenUsed', handleHelpItemHasBeenUsed);
-onDomainEvent('SupplyCrateHasBeenOpen', handleSupplyCrateHasBeenOpen);
 onDomainEvent('DiceOfFortuneWereRolled', () => {
     console.log(readGame());
 });
+onDomainEvent('HelpItemHasBeenUsed', handleHelpItemHasBeenUsed);
+onDomainEvent('SupplyCrateHasBeenOpen', handleSupplyCrateHasBeenOpen);
 
 LoadChapter();
 
@@ -449,6 +449,8 @@ function cancelPendingStart() {
 }
 
 function onBreachAlarmEnded() {
+    StartChapter();
+
     pendingStart = false;
     isRunning = true;
     tickInterval = setInterval(tick, 10);
