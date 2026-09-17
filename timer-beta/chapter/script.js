@@ -14,20 +14,10 @@ function loadDiceAnimWhenLandscape() {
 loadDiceAnimWhenLandscape();
 landscapeQuery.addEventListener('change', loadDiceAnimWhenLandscape);
 
-const DIFFICULTY_MINUTES = {
-    facile: 20,
-    normal: 15,
-    difficile: 10,
-};
-
-const gameSettings = readGame().settings || {};
-const chapterMinutes = DIFFICULTY_MINUTES[gameSettings.difficulty] ?? DIFFICULTY_MINUTES.normal;
-
 const minutesEl = document.getElementById('minutes');
 const secondsEl = document.getElementById('seconds');
 const centisEl = document.getElementById('centis');
 
-const TOTAL_TIME = chapterMinutes * 60 * 100;
 const PENALTY_AMOUNT = 2 * 60 * 100;
 const PENALTY_FLOOR = 10 * 100;
 const FIVE_MINUTES_CS = 5 * 60 * 100;
@@ -131,16 +121,13 @@ onDomainEvent('DiceOfFortuneWereRolled', renderSidebarHelpItems);
 onDomainEvent('DiceOfFortuneWereRolled', renderSidebarTributes);
 onDomainEvent('DiceOfFortuneWereRolled', renderDiceResultSummary);
 onDomainEvent('DiceOfFortuneWereRolled', renderTributeSummary);
-onDomainEvent('DiceOfFortuneWereRolled', () => {
-    console.log(readGame());
-});
 onDomainEvent('HelpItemHasBeenUsed', handleHelpItemHasBeenUsed);
 onDomainEvent('SupplyCrateHasBeenOpen', handleSupplyCrateHasBeenOpen);
 onDomainEvent('ChapterHasStarted', () => {
-    console.log(readGame());
     // Pause isn't its own use case yet either — disabling the control it shares
     // with Start also keeps that path unreachable for now.
     startBtn.disabled = true;
+    unlockAudio('breachAlarm');
     sounds.breachAlarm.addEventListener('ended', () => {
         isRunning = true;
         tickInterval = setInterval(() => {
@@ -151,8 +138,6 @@ onDomainEvent('ChapterHasStarted', () => {
 });
 
 LoadChapter();
-
-fitChapterBanner();
 window.addEventListener('resize', fitChapterBanner);
 if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(fitChapterBanner);
@@ -485,40 +470,24 @@ okBtn.addEventListener('click', () => {
 }, { once: true });
 
 startBtn.addEventListener('click', () => {
-    if (!isRunning) {
-        if (timerState.timeRemaining === TOTAL_TIME) {
-            unlockAudio('breachAlarm');
-            StartChapter();
-        } else {
-            isRunning = true;
-            tickInterval = setInterval(() => {
-                timerState.timeRemaining = tick(timerState.timeRemaining);
-            }, 10);
-            startBtn.textContent = 'Pause';
-        }
-    } else {
-        isRunning = false;
-        clearInterval(tickInterval);
-        tickInterval = null;
-        startBtn.textContent = 'Reprendre';
-    }
+    StartChapter();
 });
 
-resetBtn.addEventListener('click', () => {
-    isRunning = false;
-    clearInterval(tickInterval);
-    tickInterval = null;
-    timerState.timeRemaining = TOTAL_TIME;
-    updateTimerDisplay(timerState.timeRemaining);
-    startBtn.textContent = 'Commencer';
-    penaltyBtn.disabled = false;
-});
-
-penaltyBtn.addEventListener('click', () => {
-    timerState.timeRemaining = Math.max(timerState.timeRemaining - PENALTY_AMOUNT, PENALTY_FLOOR);
-    updateTimerDisplay(timerState.timeRemaining);
-
-    if (timerState.timeRemaining < PENALTY_FLOOR) {
-        penaltyBtn.disabled = true;
-    }
-});
+// resetBtn.addEventListener('click', () => {
+//     isRunning = false;
+//     clearInterval(tickInterval);
+//     tickInterval = null;
+//     timerState.timeRemaining = TOTAL_TIME;
+//     updateTimerDisplay(timerState.timeRemaining);
+//     startBtn.textContent = 'Commencer';
+//     penaltyBtn.disabled = false;
+// });
+//
+// penaltyBtn.addEventListener('click', () => {
+//     timerState.timeRemaining = Math.max(timerState.timeRemaining - PENALTY_AMOUNT, PENALTY_FLOOR);
+//     updateTimerDisplay(timerState.timeRemaining);
+//
+//     if (timerState.timeRemaining < PENALTY_FLOOR) {
+//         penaltyBtn.disabled = true;
+//     }
+// });
