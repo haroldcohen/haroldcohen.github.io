@@ -1,13 +1,15 @@
 function UseHelpItem(itemName) {
     const game = fetchGame();
-    let chapter;
 
     try {
-        chapter = game.useHelpItem(itemName);
+        game.useHelpItem(itemName);
     } catch {
         return;
     }
 
     saveGame(game);
+
+    const gameDTO = game.toDTO();
+    const chapter = gameDTO.chapters[gameDTO.currentChapter];
     dispatchDomainEvent('HelpItemHasBeenUsed', { chapterNum: chapter.num, itemName });
 }
