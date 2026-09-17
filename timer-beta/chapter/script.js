@@ -32,7 +32,7 @@ const PENALTY_AMOUNT = 2 * 60 * 100;
 const PENALTY_FLOOR = 10 * 100;
 const FIVE_MINUTES_CS = 5 * 60 * 100;
 const ONE_MINUTE_CS = 60 * 100;
-let timeRemaining = TOTAL_TIME;
+const timerState = { timeRemaining: null };
 let isRunning = false;
 let tickInterval = null;
 
@@ -74,7 +74,7 @@ function playSound(key) {
     audio.play().catch(() => {});
 }
 
-function updateTimerDisplay() {
+function updateTimerDisplay(timeRemaining) {
     const m = Math.floor(timeRemaining / 6000);
     const s = Math.floor((timeRemaining % 6000) / 100);
     const c = timeRemaining % 100;
@@ -83,24 +83,27 @@ function updateTimerDisplay() {
     centisEl.textContent = String(c).padStart(2, '0');
 }
 
-function tick() {
+// Pure with respect to timeRemaining: takes the current value, returns the next
+// one, never reads or mutates any outer timeRemaining state itself — the caller
+// is responsible for storing the result back wherever it keeps that value.
+function tick(timeRemaining) {
     if (timeRemaining > 0) {
-        timeRemaining--;
-        updateTimerDisplay();
-        if (timeRemaining < PENALTY_FLOOR) {
+        const nextTimeRemaining = timeRemaining - 1;
+        updateTimerDisplay(nextTimeRemaining);
+        if (nextTimeRemaining < PENALTY_FLOOR) {
             penaltyBtn.disabled = true;
         }
-        if (timeRemaining > 0 && (timeRemaining % FIVE_MINUTES_CS === 0 || timeRemaining === ONE_MINUTE_CS)) {
+        if (nextTimeRemaining > 0 && (nextTimeRemaining % FIVE_MINUTES_CS === 0 || nextTimeRemaining === ONE_MINUTE_CS)) {
             playSound('breachAlarm');
         }
-    } else {
-        clearInterval(tickInterval);
-        tickInterval = null;
-        isRunning = false;
+        return nextTimeRemaining;
     }
-}
 
-updateTimerDisplay();
+    clearInterval(tickInterval);
+    tickInterval = null;
+    isRunning = false;
+    return timeRemaining;
+}
 
 function fitChapterBanner() {
     const banner = document.querySelector('.chapter-banner');
@@ -120,6 +123,8 @@ const chapterBannerText = document.querySelector('.chapter-banner-text');
 onDomainEvent('ChapterWasLoaded', ({ chapter }) => {
     chapterBannerText.textContent = `Chapitre #${chapter.num}`;
     fitChapterBanner();
+    timerState.timeRemaining = chapter.duration;
+    updateTimerDisplay(timerState.timeRemaining);
 });
 
 onDomainEvent('DiceOfFortuneWereRolled', renderSidebarHelpItems);
@@ -133,9 +138,14 @@ onDomainEvent('HelpItemHasBeenUsed', handleHelpItemHasBeenUsed);
 onDomainEvent('SupplyCrateHasBeenOpen', handleSupplyCrateHasBeenOpen);
 onDomainEvent('ChapterHasStarted', () => {
     console.log(readGame());
+    // Pause isn't its own use case yet either — disabling the control it shares
+    // with Start also keeps that path unreachable for now.
+    startBtn.disabled = true;
     sounds.breachAlarm.addEventListener('ended', () => {
         isRunning = true;
-        tickInterval = setInterval(tick, 10);
+        tickInterval = setInterval(() => {
+            timerState.timeRemaining = tick(timerState.timeRemaining);
+        }, 10);
     }, { once: true });
     playSound('breachAlarm');
 });
@@ -467,8 +477,8 @@ okBtn.addEventListener('click', () => {
     timerView.hidden = false;
     setActiveSidebarTab('survivor');
     startBtn.disabled = false;
-    resetBtn.disabled = false;
-    penaltyBtn.disabled = false;
+    // Reset and Penalty stay disabled for now — they'll be wired to their own
+    // use cases rather than the local isRunning/timeRemaining flow.
     endChapterBtn.disabled = false;
     sidebarHelpList.querySelectorAll('.sidebar-tab-item').forEach((btn) => { btn.disabled = false; });
     sidebarHordeList.querySelectorAll('.sidebar-tab-item').forEach((btn) => { btn.disabled = false; });
@@ -476,12 +486,14 @@ okBtn.addEventListener('click', () => {
 
 startBtn.addEventListener('click', () => {
     if (!isRunning) {
-        if (timeRemaining === TOTAL_TIME) {
+        if (timerState.timeRemaining === TOTAL_TIME) {
             unlockAudio('breachAlarm');
             StartChapter();
         } else {
             isRunning = true;
-            tickInterval = setInterval(tick, 10);
+            tickInterval = setInterval(() => {
+                timerState.timeRemaining = tick(timerState.timeRemaining);
+            }, 10);
             startBtn.textContent = 'Pause';
         }
     } else {
@@ -496,17 +508,17 @@ resetBtn.addEventListener('click', () => {
     isRunning = false;
     clearInterval(tickInterval);
     tickInterval = null;
-    timeRemaining = TOTAL_TIME;
-    updateTimerDisplay();
+    timerState.timeRemaining = TOTAL_TIME;
+    updateTimerDisplay(timerState.timeRemaining);
     startBtn.textContent = 'Commencer';
     penaltyBtn.disabled = false;
 });
 
 penaltyBtn.addEventListener('click', () => {
-    timeRemaining = Math.max(timeRemaining - PENALTY_AMOUNT, PENALTY_FLOOR);
-    updateTimerDisplay();
+    timerState.timeRemaining = Math.max(timerState.timeRemaining - PENALTY_AMOUNT, PENALTY_FLOOR);
+    updateTimerDisplay(timerState.timeRemaining);
 
-    if (timeRemaining < PENALTY_FLOOR) {
+    if (timerState.timeRemaining < PENALTY_FLOOR) {
         penaltyBtn.disabled = true;
     }
 });
