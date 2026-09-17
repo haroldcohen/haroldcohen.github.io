@@ -35,7 +35,6 @@ const ONE_MINUTE_CS = 60 * 100;
 let timeRemaining = TOTAL_TIME;
 let isRunning = false;
 let tickInterval = null;
-let pendingStart = false;
 
 const sounds = {
     breachAlarm: new Audio('../../assets/audio/alerts/breach-alarm.m4a'),
@@ -132,6 +131,14 @@ onDomainEvent('DiceOfFortuneWereRolled', () => {
 });
 onDomainEvent('HelpItemHasBeenUsed', handleHelpItemHasBeenUsed);
 onDomainEvent('SupplyCrateHasBeenOpen', handleSupplyCrateHasBeenOpen);
+onDomainEvent('ChapterHasStarted', () => {
+    console.log(readGame());
+    sounds.breachAlarm.addEventListener('ended', () => {
+        isRunning = true;
+        tickInterval = setInterval(tick, 10);
+    }, { once: true });
+    playSound('breachAlarm');
+});
 
 LoadChapter();
 
@@ -283,10 +290,10 @@ function setItemDetailUseHandler(handler) {
     }
 }
 
-async function showHelpItemDetails(itemName, chapterNum) {
+async function showHelpItemDetails(itemName, chapterNum, crateId) {
     const details = await DisplayHelpItemDetails(itemName, chapterNum);
     renderItemDetailPanel(details);
-    setItemDetailUseHandler(details.isCrate ? () => OpenSupplyCrate() : () => UseHelpItem(itemName));
+    setItemDetailUseHandler(details.isCrate ? () => OpenSupplyCrate(crateId) : () => UseHelpItem(itemName));
 }
 
 async function showTributeDetails(chapterNum) {
@@ -321,6 +328,25 @@ function handleHelpItemHasBeenUsed({ itemName, chapterNum }) {
     closeItemDetail();
 }
 
+// Points the supply-crate sidebar entry at the next un-opened crate's id, or
+// removes it entirely once every granted crate has been opened.
+function updateOrRemoveCrateSidebarButton(chapterNum) {
+    const game = fetchGame();
+    const chapter = game.chapters.find((c) => c.num === chapterNum);
+    const [nextCrate] = chapter.helpItems
+        .filter((item) => item.name === 'supplyCrate' && !item.hasBeenUsed)
+        .sort((a, b) => a.id - b.id);
+
+    const btn = sidebarHelpList.querySelector('[data-item-name="supplyCrate"]');
+    if (!btn) return;
+
+    if (nextCrate) {
+        btn.dataset.crateId = String(nextCrate.id);
+    } else {
+        btn.remove();
+    }
+}
+
 // Only ever reacts to a crate actually having been opened — if OpenSupplyCrate
 // couldn't open one, no event fires and the panel is left showing "Ouvrir".
 function handleSupplyCrateHasBeenOpen({ chapterNum, description }) {
@@ -328,7 +354,7 @@ function handleSupplyCrateHasBeenOpen({ chapterNum, description }) {
     itemDetailUseBtn.textContent = 'OK';
     itemDetailCloseBtn.hidden = true;
     setItemDetailUseHandler(closeItemDetail);
-    removeSidebarHelpItemIfExhausted('supplyCrate', chapterNum);
+    updateOrRemoveCrateSidebarButton(chapterNum);
 }
 
 function renderSidebarHelpItems({ chapterNum }) {
@@ -348,6 +374,12 @@ function renderSidebarHelpItems({ chapterNum }) {
             btn.textContent = display.label.short;
             btn.title = display.description.join('\n');
             btn.dataset.itemName = name;
+            if (name === 'supplyCrate') {
+                const [firstCrate] = chapter.helpItems
+                    .filter((item) => item.name === 'supplyCrate' && !item.hasBeenUsed)
+                    .sort((a, b) => a.id - b.id);
+                btn.dataset.crateId = String(firstCrate.id);
+            }
             // Disabled until the roll summary (help items, then tribute) has been
             // closed — clicking through it too early would show the details panel
             // on top of the still-open summary.
@@ -355,7 +387,8 @@ function renderSidebarHelpItems({ chapterNum }) {
             btn.addEventListener('click', () => {
                 sidebarHelpList.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
                 btn.classList.add('selected');
-                showHelpItemDetails(name, chapterNum);
+                const crateId = btn.dataset.crateId !== undefined ? Number(btn.dataset.crateId) : undefined;
+                showHelpItemDetails(name, chapterNum, crateId);
             });
             sidebarHelpList.appendChild(btn);
         });
@@ -441,36 +474,11 @@ okBtn.addEventListener('click', () => {
     sidebarHordeList.querySelectorAll('.sidebar-tab-item').forEach((btn) => { btn.disabled = false; });
 }, { once: true });
 
-function cancelPendingStart() {
-    sounds.breachAlarm.removeEventListener('ended', onBreachAlarmEnded);
-    sounds.breachAlarm.pause();
-    sounds.breachAlarm.currentTime = 0;
-    pendingStart = false;
-}
-
-function onBreachAlarmEnded() {
-    StartChapter();
-
-    pendingStart = false;
-    isRunning = true;
-    tickInterval = setInterval(tick, 10);
-    startBtn.textContent = 'Pause';
-}
-
 startBtn.addEventListener('click', () => {
-    // Cancel pending start if clicked while the breach alarm is still playing
-    if (pendingStart) {
-        cancelPendingStart();
-        startBtn.textContent = 'Commencer';
-        return;
-    }
-
     if (!isRunning) {
         if (timeRemaining === TOTAL_TIME) {
             unlockAudio('breachAlarm');
-            pendingStart = true;
-            sounds.breachAlarm.addEventListener('ended', onBreachAlarmEnded, { once: true });
-            playSound('breachAlarm');
+            StartChapter();
         } else {
             isRunning = true;
             tickInterval = setInterval(tick, 10);
@@ -485,9 +493,6 @@ startBtn.addEventListener('click', () => {
 });
 
 resetBtn.addEventListener('click', () => {
-    if (pendingStart) {
-        cancelPendingStart();
-    }
     isRunning = false;
     clearInterval(tickInterval);
     tickInterval = null;
